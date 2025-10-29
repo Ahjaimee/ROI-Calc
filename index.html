@@ -883,8 +883,7 @@
         const SHIFTS_PER_DAY = 3;
         const HOURLY_WAGE = 14;
 
-        const STAFF_COUNT_SITE = 50;
-        const TURNOVER_REDUCTION = 0.1;
+        const LEAVERS_PER_SENSOR_YR = 0.083;
         const TURNOVER_COST_PER_LEAVER = 5000;
 
         const controlsForm = document.getElementById("controls");
@@ -1075,7 +1074,7 @@
             365 *
             HOURLY_WAGE;
           const leaversAvoided = Math.round(
-            STAFF_COUNT_SITE * TURNOVER_REDUCTION
+            sensorCount * LEAVERS_PER_SENSOR_YR
           );
           const savingsTurnover =
             leaversAvoided * TURNOVER_COST_PER_LEAVER;
