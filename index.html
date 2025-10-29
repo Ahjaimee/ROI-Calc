@@ -292,6 +292,56 @@
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       }
 
+      .price-breakdown {
+        border-top: 1px solid rgba(13, 27, 42, 0.08);
+        padding-top: 16px;
+      }
+
+      .price-breakdown summary {
+        font-weight: 600;
+        cursor: pointer;
+        color: var(--color-navy);
+        outline: none;
+      }
+
+      .price-breakdown summary::marker {
+        color: var(--color-accent);
+      }
+
+      .breakdown-grid {
+        margin-top: 14px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .breakdown-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr) minmax(0, 0.9fr);
+        gap: 10px;
+        font-weight: 600;
+        color: var(--color-text);
+      }
+
+      .breakdown-row span {
+        display: block;
+      }
+
+      .breakdown-qty,
+      .breakdown-amount {
+        text-align: right;
+        color: var(--color-muted);
+        font-weight: 500;
+      }
+
+      .breakdown-amount {
+        color: var(--color-navy);
+        font-weight: 600;
+      }
+
+      .disclaimer {
+        margin-top: 8px;
+      }
+
       .metric-item {
         background: rgba(13, 27, 42, 0.05);
         border-radius: 14px;
@@ -392,6 +442,32 @@
                 <strong id="dock-count-output">0</strong>
               </div>
             </div>
+            <details class="price-breakdown">
+              <summary>
+                View price breakdown<span aria-hidden="true">*</span>
+              </summary>
+              <div class="breakdown-grid">
+                <div class="breakdown-row">
+                  <span>Sensors</span>
+                  <span class="breakdown-qty" id="breakdown-sensors-qty">0 units</span>
+                  <span class="breakdown-amount" id="breakdown-sensors-amount">£0</span>
+                </div>
+                <div class="breakdown-row">
+                  <span>Year-1 licence</span>
+                  <span class="breakdown-qty" id="breakdown-licence-qty">0 licences</span>
+                  <span class="breakdown-amount" id="breakdown-licence-amount">£0</span>
+                </div>
+                <div class="breakdown-row">
+                  <span>Docking stations</span>
+                  <span class="breakdown-qty" id="breakdown-docks-qty">0 units</span>
+                  <span class="breakdown-amount" id="breakdown-docks-amount">£0</span>
+                </div>
+              </div>
+              <p class="footnote disclaimer">
+                <span aria-hidden="true">*</span>
+                Good-faith estimate; final pricing may vary.
+              </p>
+            </details>
           </div>
 
           <div class="result-card stack">
@@ -441,6 +517,7 @@
         const COST_DOCK = 262.5;
         const LICENCE_Y1 = 315.0;
         const GP_TARGET = 0.35;
+        const MARKUP_FACTOR = 1 / (1 - GP_TARGET);
 
         const FALLS_PER_SENSOR_YR = 1.0;
         const FALL_REDUCTION = 0.7;
@@ -467,6 +544,12 @@
         const priceOutput = document.getElementById("price-output");
         const perSensorOutput = document.getElementById("per-sensor-output");
         const dockCountOutput = document.getElementById("dock-count-output");
+        const breakdownSensorsQty = document.getElementById("breakdown-sensors-qty");
+        const breakdownSensorsAmount = document.getElementById("breakdown-sensors-amount");
+        const breakdownLicenceQty = document.getElementById("breakdown-licence-qty");
+        const breakdownLicenceAmount = document.getElementById("breakdown-licence-amount");
+        const breakdownDocksQty = document.getElementById("breakdown-docks-qty");
+        const breakdownDocksAmount = document.getElementById("breakdown-docks-amount");
         const fallsOutput = document.getElementById("falls-output");
         const hospsOutput = document.getElementById("hosps-output");
         const staffOutput = document.getElementById("staff-output");
@@ -547,6 +630,9 @@
           const costYear1ToNHM =
             sensorCount * (COST_SENSOR + LICENCE_Y1) + docks * COST_DOCK;
           const sellPriceY1 = costYear1ToNHM / (1 - GP_TARGET);
+          const sensorsSell = sensorCount * COST_SENSOR * MARKUP_FACTOR;
+          const licenceSell = sensorCount * LICENCE_Y1 * MARKUP_FACTOR;
+          const docksSell = docks * COST_DOCK * MARKUP_FACTOR;
 
           const savingsFalls =
             sensorCount * FALLS_PER_SENSOR_YR * FALL_REDUCTION * COST_PER_FALL;
@@ -581,12 +667,22 @@
             roiRatio,
             paybackMonths,
             perSensor,
+            breakdown: {
+              sensors: sensorsSell,
+              licence: licenceSell,
+              docks: docksSell,
+            },
           };
         }
 
         function formatCurrency(value) {
           if (!Number.isFinite(value)) return "–";
           return currencyFormatter.format(Math.round(value));
+        }
+
+        function formatQuantity(count, singular, plural) {
+          const label = count === 1 ? singular : plural;
+          return `${count.toLocaleString("en-GB")} ${label}`;
         }
 
         function formatMonths(value) {
@@ -609,6 +705,30 @@
 
           priceOutput.textContent = formatCurrency(metrics.sellPriceY1);
           perSensorOutput.textContent = formatCurrency(metrics.perSensor);
+          breakdownSensorsQty.textContent = formatQuantity(
+            sensorCount,
+            "sensor",
+            "sensors"
+          );
+          breakdownSensorsAmount.textContent = formatCurrency(
+            metrics.breakdown.sensors
+          );
+          breakdownLicenceQty.textContent = formatQuantity(
+            sensorCount,
+            "licence",
+            "licences"
+          );
+          breakdownLicenceAmount.textContent = formatCurrency(
+            metrics.breakdown.licence
+          );
+          breakdownDocksQty.textContent = formatQuantity(
+            metrics.docks,
+            "unit",
+            "units"
+          );
+          breakdownDocksAmount.textContent = formatCurrency(
+            metrics.breakdown.docks
+          );
           fallsOutput.textContent = formatCurrency(metrics.savingsFalls);
           hospsOutput.textContent = formatCurrency(metrics.savingsHosps);
           staffOutput.textContent = formatCurrency(metrics.savingsStaff);
