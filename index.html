@@ -562,11 +562,6 @@
   </head>
   <body>
     <div class="widget" role="application" aria-label="Cogvis AI ROI Calculator">
-      <header class="panel">
-        <h1>Cogvis AI – ROI Calculator</h1>
-        <p>Estimate annual savings, ROI, and payback.</p>
-      </header>
-
       <section class="panel layout" aria-labelledby="controls-heading results-heading">
         <form id="controls" aria-labelledby="controls-heading">
           <h2 id="controls-heading" class="visually-hidden">Calculator inputs</h2>
@@ -603,7 +598,7 @@
               step="1"
               aria-live="polite"
             />
-            <p class="hint">Automatically calculated at 2.5 per sensor (rounded). Adjust if needed.</p>
+            <p class="hint">Automatically calculated at 2.5 per sensor (rounded, capped at 500). Adjust if needed.</p>
           </div>
 
           <section
@@ -1008,12 +1003,13 @@
         }
 
         function clampDocking(value) {
+          const MAX_DOCKS = 500;
           if (value === "") return 0;
           const numeric = Number(value);
           if (!Number.isFinite(numeric) || numeric < 0) {
             return 0;
           }
-          return Math.round(numeric);
+          return Math.min(Math.round(numeric), MAX_DOCKS);
         }
 
         function setDockingValue(value) {
