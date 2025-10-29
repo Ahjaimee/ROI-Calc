@@ -885,7 +885,7 @@
 
         const STAFF_COUNT_SITE = 50;
         const TURNOVER_REDUCTION = 0.1;
-        const TURNOVER_COST_FIXED = 2000;
+        const TURNOVER_COST_PER_LEAVER = 5000;
 
         const controlsForm = document.getElementById("controls");
         const sensorRange = document.getElementById("sensor-range");
@@ -1078,7 +1078,7 @@
             STAFF_COUNT_SITE * TURNOVER_REDUCTION
           );
           const savingsTurnover =
-            STAFF_COUNT_SITE * TURNOVER_COST_FIXED * TURNOVER_REDUCTION;
+            leaversAvoided * TURNOVER_COST_PER_LEAVER;
 
           const annualSavings =
             savingsFalls + savingsHosps + savingsStaff + savingsTurnover;
