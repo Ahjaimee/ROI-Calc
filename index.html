@@ -54,19 +54,7 @@
 
     <script type="text/babel">
       const { useState, useEffect, useMemo } = React;
-      const framer = window.framerMotion;
-      const motion =
-        framer && framer.motion
-          ? framer.motion
-          : {
-              div: React.forwardRef(({ children, ...props }, ref) =>
-                React.createElement("div", { ...props, ref }, children)
-              ),
-            };
-      const AnimatePresence =
-        framer && framer.AnimatePresence
-          ? framer.AnimatePresence
-          : ({ children }) => React.createElement(React.Fragment, null, children);
+      const { motion, AnimatePresence } = window.framerMotion;
 
       const navItems = ["Home", "Solutions", "Success", "Pricing", "Account"];
 
