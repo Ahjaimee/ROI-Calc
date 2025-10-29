@@ -145,96 +145,6 @@
       text-align: right;
     }
 
-    .assumption-grid {
-      display: grid;
-      gap: 1rem;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    }
-
-    .assumption-item {
-      position: relative;
-      padding: 0.75rem;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: var(--accent-light);
-      display: grid;
-      gap: 0.4rem;
-    }
-
-    .assumption-item label {
-      color: var(--text);
-      font-weight: 600;
-      font-size: 0.85rem;
-    }
-
-    .input-with-suffix {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .input-with-suffix input {
-      flex: 1;
-    }
-
-    .suffix {
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-
-    .delta {
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-
-    .delta.positive {
-      color: var(--green);
-    }
-
-    .delta.negative {
-      color: var(--red);
-    }
-
-    .info-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: var(--accent);
-      color: #fff;
-      font-size: 0.75rem;
-      cursor: help;
-      margin-left: 0.35rem;
-      position: relative;
-    }
-
-    .info-icon::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      bottom: calc(100% + 8px);
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(31, 41, 51, 0.95);
-      color: #fff;
-      padding: 0.4rem 0.6rem;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      width: 220px;
-      max-width: 70vw;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-      text-align: left;
-      line-height: 1.3;
-    }
-
-    .info-icon:hover::after,
-    .info-icon:focus::after {
-      opacity: 1;
-    }
-
     .results {
       display: grid;
       gap: 1.25rem;
@@ -334,28 +244,13 @@
           <div id="docking-info" aria-live="polite">Docking stations (auto): <strong id="docking-count">25</strong></div>
         </div>
 
-        <section aria-labelledby="assumptions-heading">
-          <h3 id="assumptions-heading">Assumptions <span class="info-icon" tabindex="0" data-tooltip="Adjust site assumptions to reflect your environment. Values persist across visits.">i</span></h3>
-          <div class="assumption-grid" id="assumption-grid">
-            <!-- Assumption inputs injected by JS -->
-          </div>
-        </section>
-
-        <section aria-labelledby="pricing-heading">
-          <h3 id="pricing-heading">Pricing Inputs <span class="info-icon" tabindex="0" data-tooltip="Override pricing if bespoke quotes apply. Gross profit uplift calculated automatically.">i</span></h3>
-          <div class="assumption-grid" id="pricing-grid">
-            <!-- Pricing inputs injected by JS -->
-          </div>
-        </section>
       </section>
 
       <section class="card results" aria-labelledby="results-heading">
         <h2 id="results-heading">Results Summary</h2>
 
         <div class="result-card" aria-live="polite">
-          <h3>Hardware &amp; Licence (Year 1)</h3>
-          <div class="result-line"><span>NHM cost base</span><strong id="nhm-cost">£0</strong></div>
-          <div class="result-line"><span>GP uplift (35%)</span><strong id="gp-uplift">£0</strong></div>
+          <h3>Investment Overview (Year 1)</h3>
           <div class="result-line"><span>Customer price (Year 1)</span><strong class="highlight" id="customer-price">£0</strong></div>
         </div>
 
@@ -437,28 +332,6 @@
       }
     };
 
-    const assumptionMetadata = [
-      { key: 'falls_per_sensor', label: 'Baseline falls per sensor / year', hint: 'Average number of falls linked to each sensor annually.', type: 'number', step: '0.1' },
-      { key: 'fall_reduction', label: 'Fall reduction rate', hint: 'Percentage of falls avoided with Cogvis AI.', type: 'number', step: '0.05' },
-      { key: 'cost_per_fall', label: 'Cost per fall (£)', hint: 'Estimated total cost per resident fall.', type: 'number', step: '100' },
-      { key: 'hosp_per_sensor', label: 'Baseline hospitalisations per sensor / year', hint: 'Average hospital admissions per sensor each year.', type: 'number', step: '0.1' },
-      { key: 'hosp_reduction', label: 'Hospitalisation reduction rate', hint: 'Percentage of admissions avoided with Cogvis AI.', type: 'number', step: '0.05' },
-      { key: 'cost_per_hosp', label: 'Cost per hospitalisation (£)', hint: 'Average cost of hospital admission.', type: 'number', step: '100' },
-      { key: 'mins_saved_per_shift', label: 'Staff minutes saved per resident per shift', hint: 'Efficiency gains per shift per sensor.', type: 'number', step: '1' },
-      { key: 'shifts_per_day', label: 'Shifts per day', hint: 'Number of staffed shifts per day.', type: 'number', step: '1' },
-      { key: 'hourly_wage', label: 'Hourly wage (£/hr)', hint: 'Average hourly labour cost.', type: 'number', step: '1' },
-      { key: 'staff_count', label: 'Staff count (site)', hint: 'Total staff at the site the sensors support.', type: 'number', step: '1' },
-      { key: 'turnover_reduction', label: 'Turnover reduction rate', hint: 'Expected reduction in staff turnover.', type: 'number', step: '0.01' },
-      { key: 'turnover_cost', label: 'Turnover cost per staff (£)', hint: 'Cost to replace one staff member.', type: 'number', step: '100' }
-    ];
-
-    const pricingMetadata = [
-      { key: 'cost_per_sensor', label: 'Cost to NHM per sensor (£)', hint: 'Hardware cost per sensor for NHM.', step: '0.01' },
-      { key: 'cost_per_dock', label: 'Cost to NHM per docking station (£)', hint: 'Hardware cost per docking station for NHM.', step: '0.01' },
-      { key: 'licence_per_sensor', label: 'Year-1 licence per sensor (£)', hint: 'Software licence cost in year one per sensor.', step: '0.01' },
-      { key: 'target_gp', label: 'Target GP (%)', hint: 'Target gross profit margin as a percentage.', step: '0.1', multiplier: 100, suffix: '%' }
-    ];
-
     const state = loadState();
     const sensorSlider = document.getElementById('sensor-slider');
     const sensorInput = document.getElementById('sensor-input');
@@ -507,101 +380,6 @@
       }).format(Math.round(value));
     }
 
-    function renderAssumptions() {
-      const grid = document.getElementById('assumption-grid');
-      grid.innerHTML = '';
-      assumptionMetadata.forEach(({ key, label, hint, type, step }) => {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'assumption-item';
-        const inputId = `assumption-${key}`;
-        const defaultValue = sectorDefaults[state.sector].assumptions[key];
-        const value = state.assumptions[key];
-        wrapper.innerHTML = `
-          <label for="${inputId}">${label}<span class="info-icon" tabindex="0" data-tooltip="${hint}">i</span></label>
-          <input type="number" id="${inputId}" inputmode="decimal" step="${step}" name="${key}" value="${value}" aria-describedby="${inputId}-delta" />
-          <span class="delta" id="${inputId}-delta"></span>
-        `;
-        grid.appendChild(wrapper);
-      });
-    }
-
-    function renderPricing() {
-      const grid = document.getElementById('pricing-grid');
-      grid.innerHTML = '';
-      pricingMetadata.forEach((meta) => {
-        const { key, label, hint, step, multiplier = 1, suffix = '' } = meta;
-        const wrapper = document.createElement('div');
-        wrapper.className = 'assumption-item';
-        const inputId = `pricing-${key}`;
-        const value = (state.pricing[key] * multiplier).toFixed(2).replace(/\.0+$/, '');
-        wrapper.innerHTML = `
-          <label for="${inputId}">${label}<span class="info-icon" tabindex="0" data-tooltip="${hint}">i</span></label>
-          <div class="input-with-suffix">
-            <input type="number" id="${inputId}" inputmode="decimal" step="${step}" name="${key}" value="${value}" aria-describedby="${inputId}-delta" />
-            ${suffix ? `<span class="suffix">${suffix}</span>` : ''}
-          </div>
-          <span class="delta" id="${inputId}-delta"></span>
-        `;
-        grid.appendChild(wrapper);
-      });
-    }
-
-    function attachAssumptionListeners() {
-      document.querySelectorAll('#assumption-grid input').forEach((input) => {
-        input.addEventListener('input', () => {
-          const key = input.name;
-          const value = parseFloat(input.value) || 0;
-          state.assumptions[key] = value;
-          updateDelta(input, sectorDefaults[state.sector].assumptions[key]);
-          persistState();
-          calculateAndRender();
-        });
-        updateDelta(input, sectorDefaults[state.sector].assumptions[input.name]);
-      });
-    }
-
-    function attachPricingListeners() {
-      document.querySelectorAll('#pricing-grid input').forEach((input) => {
-        input.addEventListener('input', () => {
-          const key = input.name;
-          let value = parseFloat(input.value);
-          if (key === 'target_gp') {
-            value = value > 1 ? value / 100 : value;
-          }
-          if (Number.isNaN(value)) value = 0;
-          state.pricing[key] = value;
-          const metadata = pricingMetadata.find((meta) => meta.key === key) || {};
-          updateDelta(input, sectorDefaults[state.sector].pricing[key], metadata);
-          persistState();
-          calculateAndRender();
-        });
-        const metadata = pricingMetadata.find((meta) => meta.key === input.name) || {};
-        updateDelta(input, sectorDefaults[state.sector].pricing[input.name], metadata);
-      });
-    }
-
-    function updateDelta(input, defaultValue, metadata = {}) {
-      const deltaEl = document.getElementById(`${input.id}-delta`);
-      const value = parseFloat(input.value) || 0;
-      const multiplier = metadata.multiplier || 1;
-      const adjustedValue = multiplier !== 1 ? value / multiplier : value;
-      const delta = adjustedValue - defaultValue;
-      let formatted = '';
-      deltaEl.classList.remove('positive', 'negative');
-      if (Math.abs(delta) > 1e-6) {
-        if (input.name.includes('reduction') || input.name === 'target_gp') {
-          const displayDelta = delta * (Math.abs(delta) < 1 ? 100 : 1);
-          formatted = `${delta > 0 ? '+' : ''}${displayDelta.toFixed(1)}${Math.abs(delta) < 1 ? '%' : ''}`;
-        } else {
-          formatted = `${delta > 0 ? '+' : ''}${delta.toFixed(2)}`;
-        }
-        deltaEl.textContent = formatted;
-        deltaEl.classList.add(delta >= 0 ? 'positive' : 'negative');
-      } else {
-        deltaEl.textContent = 'Default';
-      }
-    }
-
     function setupSectorControls() {
       document.querySelectorAll('input[name="sector"]').forEach((radio) => {
         radio.checked = radio.value === state.sector;
@@ -614,10 +392,6 @@
           state.pricing = { ...defaults.pricing };
           sensorSlider.value = state.sensors;
           sensorInput.value = state.sensors;
-          renderAssumptions();
-          renderPricing();
-          attachAssumptionListeners();
-          attachPricingListeners();
           persistState();
           calculateAndRender();
         });
@@ -649,7 +423,7 @@
       return { costYear1ToNhm, sellPriceYear1, gpUplift };
     }
 
-    function calculateSavings({ sensors, assumptions }) {
+    function calculateSavings({ sensors, assumptions, sector }) {
       const baselineFalls = sensors * assumptions.falls_per_sensor;
       const fallsAvoided = baselineFalls * assumptions.fall_reduction;
       const savingsFalls = fallsAvoided * assumptions.cost_per_fall;
@@ -662,7 +436,14 @@
       const hoursSavedPerYear = hoursSavedPerDay * 365;
       const savingsStaff = hoursSavedPerYear * assumptions.hourly_wage;
 
-      const savingsTurnover = assumptions.staff_count * assumptions.turnover_cost * assumptions.turnover_reduction;
+      const defaults = sectorDefaults[sector] || {};
+      const defaultSensors = defaults.sensors || 1;
+      const defaultStaffCount = (defaults.assumptions && defaults.assumptions.staff_count) || 0;
+      const storedStaffCount = assumptions.staff_count ?? defaultStaffCount;
+      const staffMultiplier = defaultStaffCount ? storedStaffCount / defaultStaffCount : 1;
+      const staffPerSensorBaseline = defaultSensors ? defaultStaffCount / defaultSensors : 0;
+      const effectiveStaffCount = staffPerSensorBaseline * staffMultiplier * sensors;
+      const savingsTurnover = effectiveStaffCount * assumptions.turnover_cost * assumptions.turnover_reduction;
 
       const annualSavings = savingsFalls + savingsHosps + savingsStaff + savingsTurnover;
 
@@ -687,6 +468,7 @@
       console.assert(Math.round(sampleCosts.sellPriceYear1) === 24844, 'Sell price mismatch');
       const sampleSavings = calculateSavings({
         sensors: 10,
+        sector: 'care-home',
         assumptions: {
           falls_per_sensor: 1,
           fall_reduction: 0.7,
@@ -717,7 +499,8 @@
 
       const savingsResult = calculateSavings({
         sensors: state.sensors,
-        assumptions: state.assumptions
+        assumptions: state.assumptions,
+        sector: state.sector
       });
 
       const roiRatio = savingsResult.annualSavings && costResult.sellPriceYear1 ? savingsResult.annualSavings / costResult.sellPriceYear1 : 0;
@@ -725,8 +508,6 @@
       const pricePerSensor = ((state.pricing.cost_per_sensor + state.pricing.licence_per_sensor) + (2.5 * state.pricing.cost_per_dock)) / (1 - state.pricing.target_gp);
       const savingsPerSensor = savingsResult.annualSavings / state.sensors || 0;
 
-      document.getElementById('nhm-cost').textContent = formatCurrency(costResult.costYear1ToNhm);
-      document.getElementById('gp-uplift').textContent = formatCurrency(costResult.gpUplift);
       document.getElementById('customer-price').textContent = formatCurrency(costResult.sellPriceYear1);
 
       document.getElementById('savings-falls').textContent = formatCurrency(savingsResult.savingsFalls);
@@ -745,10 +526,6 @@
       sensorSlider.value = state.sensors;
       sensorSlider.setAttribute('aria-valuenow', state.sensors);
       sensorInput.value = state.sensors;
-      renderAssumptions();
-      renderPricing();
-      attachAssumptionListeners();
-      attachPricingListeners();
       setupSectorControls();
       setupSensorControls();
       calculateAndRender();
