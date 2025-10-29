@@ -523,8 +523,15 @@
 
           <div class="control">
             <label for="docking">Docking stations</label>
-            <input type="text" id="docking" value="25" readonly aria-live="polite" />
-            <p class="hint">Automatically calculated at 2.5 per sensor (rounded).</p>
+            <input
+              type="number"
+              id="docking"
+              value="25"
+              min="0"
+              step="1"
+              aria-live="polite"
+            />
+            <p class="hint">Automatically calculated at 2.5 per sensor (rounded). Adjust if needed.</p>
           </div>
         </form>
 
@@ -680,7 +687,6 @@
                 <strong id="payback-output">0 months</strong>
               </div>
             </div>
-            <p class="footnote">Pricing reflects customer-facing year-1 rates.</p>
           </div>
         </div>
       </section>
@@ -716,6 +722,7 @@
         const sensorRange = document.getElementById("sensor-range");
         const sensorNumber = document.getElementById("sensor-number");
         const dockingField = document.getElementById("docking");
+        let dockingManual = false;
         const sectorRadios = controlsForm.elements.namedItem("sector");
 
         const priceOutput = document.getElementById("price-output");
@@ -821,6 +828,25 @@
           }
         }
 
+        function clampDocking(value) {
+          if (value === "") return 0;
+          const numeric = Number(value);
+          if (!Number.isFinite(numeric) || numeric < 0) {
+            return 0;
+          }
+          return Math.round(numeric);
+        }
+
+        function setDockingValue(value) {
+          const safe = clampDocking(value);
+          dockingField.value = String(safe);
+          return safe;
+        }
+
+        function getDockingCount() {
+          return clampDocking(dockingField.value);
+        }
+
         function clampSensors(value) {
           const min = parseInt(sensorRange.min, 10);
           const max = parseInt(sensorRange.max, 10);
@@ -832,7 +858,9 @@
           const clamped = clampSensors(Number(value));
           sensorRange.value = String(clamped);
           sensorNumber.value = String(clamped);
-          updateDocking(clamped);
+          if (!dockingManual) {
+            setDockingValue(clamped * 2.5);
+          }
           persistState({ sensors: clamped });
           updateResults();
         }
@@ -844,14 +872,8 @@
           persistState({ sector: value });
         }
 
-        function updateDocking(sensorCount) {
-          const docks = Math.round(sensorCount * 2.5);
-          dockingField.value = String(docks);
-          dockCountOutput.textContent = docks.toLocaleString("en-GB");
-        }
-
         function compute(sensorCount) {
-          const docks = Math.round(sensorCount * 2.5);
+          const docks = getDockingCount();
           const sensorsSell = sensorCount * PRICE_SENSOR_Y1;
           const licenceSell = sensorCount * PRICE_LICENCE_Y1;
           const docksSell = docks * PRICE_DOCK;
@@ -926,6 +948,9 @@
           const sensorCount = Number(sensorRange.value);
           const metrics = compute(sensorCount);
 
+          const docks = setDockingValue(metrics.docks);
+          dockCountOutput.textContent = docks.toLocaleString("en-GB");
+
           priceOutput.textContent = formatCurrency(metrics.sellPriceY1);
           perSensorOutput.textContent = formatCurrency(metrics.perSensor);
           breakdownSensorsQty.textContent = formatQuantity(
@@ -976,6 +1001,19 @@
           if (sensorNumber.value === "") {
             updateSensors(sensorRange.value);
           }
+        });
+
+        dockingField.addEventListener("input", () => {
+          dockingManual = true;
+          updateResults();
+        });
+
+        dockingField.addEventListener("blur", () => {
+          if (dockingField.value === "") {
+            dockingManual = false;
+            setDockingValue(Number(sensorRange.value) * 2.5);
+          }
+          updateResults();
         });
 
         Array.from(sectorRadios).forEach((radio) => {
