@@ -156,6 +156,72 @@
         color: var(--color-muted);
       }
 
+      .operational-quantities {
+        margin-top: 18px;
+        display: grid;
+        gap: 18px;
+      }
+
+      .operational-quantities h3 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin-bottom: 0;
+      }
+
+      .op-grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      @media (min-width: 640px) {
+        .op-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      .op-card {
+        background: #ffffff;
+        border-radius: 14px;
+        box-shadow: 0 8px 24px rgba(2, 10, 26, 0.06);
+        padding: 20px 22px;
+        display: grid;
+        gap: 10px;
+        border: 1px solid #e7e9ec;
+      }
+
+      .op-card-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: var(--color-navy);
+        font-size: 1rem;
+      }
+
+      .op-quantity {
+        font-size: clamp(1.6rem, 1.1rem + 1.4vw, 2.2rem);
+        font-weight: 700;
+        color: var(--color-navy);
+      }
+
+      .op-unit {
+        font-size: 0.95rem;
+        color: var(--color-muted);
+      }
+
+      .op-caption {
+        font-size: 0.85rem;
+        color: var(--color-muted);
+        line-height: 1.4;
+        margin: 0;
+      }
+
+      .op-secondary {
+        font-size: 0.85rem;
+        color: var(--color-muted);
+        margin: 0;
+      }
+
       #results {
         display: grid;
         gap: 24px;
@@ -287,6 +353,10 @@
         position: relative;
       }
 
+      .tooltip-scope {
+        position: relative;
+      }
+
       .tooltip-trigger {
         appearance: none;
         border: none;
@@ -341,7 +411,7 @@
         border-color: #ffffff transparent transparent transparent;
       }
 
-      .savings-label:hover .tooltip-content,
+      .tooltip-scope:hover .tooltip-content,
       .tooltip-trigger:focus + .tooltip-content,
       .tooltip-trigger[aria-expanded="true"] + .tooltip-content {
         opacity: 1;
@@ -356,6 +426,8 @@
           bottom: auto;
           top: calc(100% + 10px);
           transform: translateY(-6px);
+          max-width: none;
+          width: clamp(220px, 85vw, 360px);
         }
 
         .tooltip-content::after {
@@ -533,6 +605,108 @@
             />
             <p class="hint">Automatically calculated at 2.5 per sensor (rounded). Adjust if needed.</p>
           </div>
+
+          <section
+            class="operational-quantities"
+            aria-labelledby="operational-quantities-heading"
+            aria-live="polite"
+          >
+            <h3 id="operational-quantities-heading">Operational quantities (per year)</h3>
+            <div class="op-grid">
+              <article class="op-card">
+                <div class="op-card-title tooltip-scope">
+                  Falls prevented
+                  <button
+                    type="button"
+                    class="tooltip-trigger"
+                    aria-label="More information about falls prevented"
+                    aria-expanded="false"
+                    aria-controls="tooltip-falls-qty"
+                  >
+                    <span aria-hidden="true">ⓘ</span>
+                  </button>
+                  <div class="tooltip-content" id="tooltip-falls-qty" role="tooltip">
+                    Estimated reduction in resident falls with AI detection.
+                  </div>
+                </div>
+                <div>
+                  <div class="op-quantity" id="falls-quantity">0</div>
+                  <div class="op-unit">falls / year</div>
+                </div>
+                <p class="op-caption">Projected number of resident falls avoided annually.</p>
+              </article>
+
+              <article class="op-card">
+                <div class="op-card-title tooltip-scope">
+                  Hospitalisations avoided
+                  <button
+                    type="button"
+                    class="tooltip-trigger"
+                    aria-label="More information about hospitalisations avoided"
+                    aria-expanded="false"
+                    aria-controls="tooltip-hosps-qty"
+                  >
+                    <span aria-hidden="true">ⓘ</span>
+                  </button>
+                  <div class="tooltip-content" id="tooltip-hosps-qty" role="tooltip">
+                    Fewer admissions due to earlier detection and intervention.
+                  </div>
+                </div>
+                <div>
+                  <div class="op-quantity" id="hosps-quantity">0</div>
+                  <div class="op-unit">admissions / year</div>
+                </div>
+                <p class="op-caption">Avoided unplanned hospital transfers attributed to Cogvis AI.</p>
+              </article>
+
+              <article class="op-card">
+                <div class="op-card-title tooltip-scope">
+                  Staff time saved
+                  <button
+                    type="button"
+                    class="tooltip-trigger"
+                    aria-label="More information about staff time saved"
+                    aria-expanded="false"
+                    aria-controls="tooltip-staff-qty"
+                  >
+                    <span aria-hidden="true">ⓘ</span>
+                  </button>
+                  <div class="tooltip-content" id="tooltip-staff-qty" role="tooltip">
+                    Time freed from routine checks and false alarms.
+                  </div>
+                </div>
+                <div>
+                  <div class="op-quantity" id="hours-quantity">0</div>
+                  <div class="op-unit">hours / year</div>
+                </div>
+                <p class="op-secondary" id="staff-days-quantity">≈ 0 staff-days</p>
+                <p class="op-caption">Aggregate staff hours reclaimed annually across all shifts.</p>
+              </article>
+
+              <article class="op-card">
+                <div class="op-card-title tooltip-scope">
+                  Leavers avoided
+                  <button
+                    type="button"
+                    class="tooltip-trigger"
+                    aria-label="More information about leavers avoided"
+                    aria-expanded="false"
+                    aria-controls="tooltip-turnover-qty"
+                  >
+                    <span aria-hidden="true">ⓘ</span>
+                  </button>
+                  <div class="tooltip-content" id="tooltip-turnover-qty" role="tooltip">
+                    Improved conditions help retain staff.
+                  </div>
+                </div>
+                <div>
+                  <div class="op-quantity" id="leavers-quantity">0</div>
+                  <div class="op-unit">people / year</div>
+                </div>
+                <p class="op-caption">Estimated staff turnover reduction driven by safer workflows.</p>
+              </article>
+            </div>
+          </section>
         </form>
 
         <div id="results" aria-labelledby="results-heading">
@@ -583,7 +757,7 @@
             <h3>Savings Breakdown</h3>
             <ul class="savings-list">
               <li>
-                <span class="savings-label">
+                <span class="savings-label tooltip-scope">
                   Falls prevented
                   <button
                     type="button"
@@ -601,7 +775,7 @@
                 <strong id="falls-output">£0</strong>
               </li>
               <li>
-                <span class="savings-label">
+                <span class="savings-label tooltip-scope">
                   Hospitalisations avoided
                   <button
                     type="button"
@@ -619,7 +793,7 @@
                 <strong id="hosps-output">£0</strong>
               </li>
               <li>
-                <span class="savings-label">
+                <span class="savings-label tooltip-scope">
                   Staff efficiency
                   <button
                     type="button"
@@ -637,7 +811,7 @@
                 <strong id="staff-output">£0</strong>
               </li>
               <li>
-                <span class="savings-label">
+                <span class="savings-label tooltip-scope">
                   Staff turnover
                   <button
                     type="button"
@@ -655,8 +829,8 @@
                 <strong id="turnover-output">£0</strong>
               </li>
             </ul>
-            <div class="total-savings">
-              <span class="savings-label">
+              <div class="total-savings">
+                <span class="savings-label tooltip-scope">
                 Total annual savings
                 <button
                   type="button"
@@ -738,6 +912,11 @@
         const hospsOutput = document.getElementById("hosps-output");
         const staffOutput = document.getElementById("staff-output");
         const turnoverOutput = document.getElementById("turnover-output");
+        const fallsQuantityOutput = document.getElementById("falls-quantity");
+        const hospsQuantityOutput = document.getElementById("hosps-quantity");
+        const hoursQuantityOutput = document.getElementById("hours-quantity");
+        const staffDaysOutput = document.getElementById("staff-days-quantity");
+        const leaversQuantityOutput = document.getElementById("leavers-quantity");
         const totalSavingsOutput = document.getElementById("total-savings-output");
         const roiOutput = document.getElementById("roi-output");
         const paybackOutput = document.getElementById("payback-output");
@@ -785,13 +964,13 @@
         });
 
         document.addEventListener("click", (event) => {
-          if (!event.target.closest(".savings-label")) {
+          if (!event.target.closest(".tooltip-scope")) {
             closeAllTooltips();
           }
         });
 
         document.addEventListener("focusin", (event) => {
-          if (!event.target.closest(".savings-label")) {
+          if (!event.target.closest(".tooltip-scope")) {
             closeAllTooltips();
           }
         });
@@ -879,16 +1058,29 @@
           const docksSell = docks * PRICE_DOCK;
           const sellPriceY1 = sensorsSell + licenceSell + docksSell;
 
+          const fallsAvoided = Math.round(
+            sensorCount * FALLS_PER_SENSOR_YR * FALL_REDUCTION
+          );
           const savingsFalls =
             sensorCount * FALLS_PER_SENSOR_YR * FALL_REDUCTION * COST_PER_FALL;
+          const hospsAvoided = Math.round(
+            sensorCount * HOSPS_PER_SENSOR_YR * HOSP_REDUCTION
+          );
           const savingsHosps =
             sensorCount * HOSPS_PER_SENSOR_YR * HOSP_REDUCTION * COST_PER_HOSP;
+          const hoursSavedPerDay =
+            (sensorCount * MINS_SAVED_PER_SHIFT * SHIFTS_PER_DAY) / 60;
+          const hoursSavedPerYear = Math.round(hoursSavedPerDay * 365);
+          const staffDaysSaved = Math.round(hoursSavedPerYear / 8);
           const savingsStaff =
             sensorCount *
             (MINS_SAVED_PER_SHIFT * SHIFTS_PER_DAY) /
             60 *
             365 *
             HOURLY_WAGE;
+          const leaversAvoided = Math.round(
+            STAFF_COUNT_SITE * TURNOVER_REDUCTION
+          );
           const savingsTurnover =
             STAFF_COUNT_SITE * TURNOVER_COST_FIXED * TURNOVER_REDUCTION;
 
@@ -917,12 +1109,24 @@
               licence: licenceSell,
               docks: docksSell,
             },
+            operational: {
+              fallsAvoided,
+              hospsAvoided,
+              hoursSavedPerYear,
+              staffDaysSaved,
+              leaversAvoided,
+            },
           };
         }
 
         function formatCurrency(value) {
           if (!Number.isFinite(value)) return "–";
           return currencyFormatter.format(Math.round(value));
+        }
+
+        function formatInteger(value) {
+          if (!Number.isFinite(value)) return "0";
+          return Math.round(value).toLocaleString("en-GB");
         }
 
         function formatQuantity(count, singular, plural) {
@@ -981,6 +1185,21 @@
           hospsOutput.textContent = formatCurrency(metrics.savingsHosps);
           staffOutput.textContent = formatCurrency(metrics.savingsStaff);
           turnoverOutput.textContent = formatCurrency(metrics.savingsTurnover);
+          fallsQuantityOutput.textContent = formatInteger(
+            metrics.operational.fallsAvoided
+          );
+          hospsQuantityOutput.textContent = formatInteger(
+            metrics.operational.hospsAvoided
+          );
+          hoursQuantityOutput.textContent = formatInteger(
+            metrics.operational.hoursSavedPerYear
+          );
+          staffDaysOutput.textContent = `≈ ${formatInteger(
+            metrics.operational.staffDaysSaved
+          )} staff-days`;
+          leaversQuantityOutput.textContent = formatInteger(
+            metrics.operational.leaversAvoided
+          );
           totalSavingsOutput.textContent = formatCurrency(metrics.annualSavings);
           roiOutput.textContent = formatRoi(metrics.roiRatio);
           paybackOutput.textContent = formatMonths(metrics.paybackMonths);
