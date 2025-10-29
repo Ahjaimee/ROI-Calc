@@ -1,541 +1,347 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cogvis AI – ROI Calculator</title>
-  <style>
-    :root {
-      color-scheme: light dark;
-      --bg: #f4f6f8;
-      --card-bg: #ffffff;
-      --accent: #124191;
-      --accent-light: #e6eefc;
-      --text: #1f2933;
-      --muted: #52606d;
-      --border: #d9e2ec;
-      --green: #1f9d55;
-      --red: #c81e1e;
-      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    header {
-      padding: 2rem 1.5rem 1rem;
-      text-align: center;
-      background: var(--card-bg);
-      border-bottom: 1px solid var(--border);
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: clamp(1.8rem, 2.5vw, 2.6rem);
-      color: var(--accent);
-    }
-
-    header p {
-      margin: 0.25rem 0 0;
-      color: var(--muted);
-      font-size: 1rem;
-    }
-
-    main {
-      padding: 2rem 1.5rem 3rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .layout {
-      display: grid;
-      gap: 1.5rem;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    }
-
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-
-    .card h2 {
-      margin-top: 0;
-      margin-bottom: 1rem;
-      font-size: 1.2rem;
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .controls {
-      display: grid;
-      gap: 1.5rem;
-    }
-
-    fieldset {
-      border: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    fieldset legend {
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-    }
-
-    .sector-options {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    label {
-      display: flex;
-      flex-direction: column;
-      font-size: 0.9rem;
-      color: var(--muted);
-      gap: 0.4rem;
-    }
-
-    input[type="number"],
-    input[type="text"],
-    .slider-wrapper input[type="range"] {
-      width: 100%;
-      padding: 0.6rem 0.75rem;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      font-size: 1rem;
-      color: var(--text);
-      background: #fff;
-      transition: border 0.2s ease;
-    }
-
-    input:focus,
-    input:hover,
-    .slider-wrapper input[type="range"]:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(18, 65, 145, 0.2);
-    }
-
-    .slider-row {
-      display: grid;
-      gap: 0.75rem;
-    }
-
-    .slider-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .slider-wrapper input[type="number"] {
-      width: 90px;
-      text-align: right;
-    }
-
-    .results {
-      display: grid;
-      gap: 1.25rem;
-    }
-
-    .result-card {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1rem 1.25rem;
-      background: #fff;
-      display: grid;
-      gap: 0.75rem;
-    }
-
-    .result-card h3 {
-      margin: 0;
-      color: var(--accent);
-      font-size: 1rem;
-    }
-
-    .result-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 1rem;
-      font-size: 0.95rem;
-    }
-
-    .result-line strong {
-      font-size: 1.05rem;
-    }
-
-    .highlight {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .note {
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-top: 0.5rem;
-      text-align: center;
-    }
-
-    @media (max-width: 768px) {
-      header {
-        text-align: left;
-      }
-
-      .slider-wrapper {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .slider-wrapper input[type="number"] {
-        width: 100%;
-      }
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Cogvis AI – ROI Calculator</h1>
-    <p>Estimate annual savings, ROI, and payback period.</p>
-  </header>
-
-  <main>
-    <div class="layout">
-      <section class="card controls" aria-labelledby="controls-heading">
-        <h2 id="controls-heading">Inputs</h2>
-
-        <fieldset>
-          <legend>Sector</legend>
-          <div class="sector-options" role="radiogroup" aria-label="Select sector">
-            <label>
-              <span>
-                <input type="radio" name="sector" value="care-home" checked aria-label="Care Home" />
-                Care Home
-              </span>
-            </label>
-            <label>
-              <span>
-                <input type="radio" name="sector" value="hospital" aria-label="Hospital" />
-                Hospital
-              </span>
-            </label>
-          </div>
-        </fieldset>
-
-        <div class="slider-row" aria-label="Sensor quantity">
-          <label for="sensor-slider">Sensors</label>
-          <div class="slider-wrapper">
-            <input type="range" id="sensor-slider" min="1" max="200" step="1" value="10" aria-valuemin="1" aria-valuemax="200" aria-valuenow="10" aria-label="Number of sensors" />
-            <input type="number" id="sensor-input" min="1" max="200" step="1" value="10" aria-label="Number of sensors input" />
-          </div>
-          <div id="docking-info" aria-live="polite">Docking stations (auto): <strong id="docking-count">25</strong></div>
-        </div>
-
-      </section>
-
-      <section class="card results" aria-labelledby="results-heading">
-        <h2 id="results-heading">Results Summary</h2>
-
-        <div class="result-card" aria-live="polite">
-          <h3>Investment Overview</h3>
-          <div class="result-line"><span>Customer price (Year 1)</span><strong class="highlight" id="customer-price">£0</strong></div>
-          <div class="result-line"><span>Estimated customer price (Year 2 licence)*</span><strong id="customer-price-year2">£0</strong></div>
-        </div>
-
-        <div class="result-card">
-          <h3>Annual Savings Breakdown</h3>
-          <div class="result-line"><span>Falls prevented</span><strong id="savings-falls">£0</strong></div>
-          <div class="result-line"><span>Hospitalisations avoided</span><strong id="savings-hosps">£0</strong></div>
-          <div class="result-line"><span>Staff efficiency</span><strong id="savings-staff">£0</strong></div>
-          <div class="result-line"><span>Turnover reduction</span><strong id="savings-turnover">£0</strong></div>
-          <div class="result-line"><span>Total annual savings</span><strong class="highlight" id="total-savings">£0</strong></div>
-        </div>
-
-        <div class="result-card">
-          <h3>ROI &amp; Payback</h3>
-          <div class="result-line"><span>ROI ratio</span><strong id="roi-ratio">0.0x</strong></div>
-          <div class="result-line"><span>Payback period</span><strong id="payback">0 months</strong></div>
-        </div>
-
-        <div class="result-card">
-          <h3>Per-Sensor Snapshot</h3>
-          <div class="result-line"><span>Customer price per sensor</span><strong id="price-per-sensor">£0</strong></div>
-          <div class="result-line"><span>Annual savings per sensor</span><strong id="savings-per-sensor">£0</strong></div>
-        </div>
-
-        <p class="note">Pricing includes 35% GP and Year-1 licence. *Year-2 price is a good-faith estimate covering licence fees only.</p>
-      </section>
-    </div>
-  </main>
-
-  <script>
-    const STORAGE_KEY = 'cogvis-roi-calculator-state';
-
-    const sectorDefaults = {
-      'care-home': {
-        sensors: 10,
-        assumptions: {
-          falls_per_sensor: 1,
-          fall_reduction: 0.7,
-          cost_per_fall: 4000,
-          hosp_per_sensor: 0.4,
-          hosp_reduction: 0.6,
-          cost_per_hosp: 3000,
-          mins_saved_per_shift: 20,
-          shifts_per_day: 3,
-          hourly_wage: 14,
-          staff_count: 50,
-          turnover_reduction: 0.1,
-          turnover_cost: 4000
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NHM ROI Calculator</title>
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind = window.tailwind || {};
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Manrope"', "ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+            },
+            colors: {
+              nhm: {
+                navy: "#0d1b2a",
+                slate: "#1b263b",
+                light: "#f1f3f5",
+                softer: "#f8f9fa",
+                accent: "#fca311",
+              },
+            },
+            boxShadow: {
+              dashboard: "0 20px 45px -20px rgba(13,27,42,0.35)",
+            },
+            borderRadius: {
+              card: "24px",
+              button: "18px",
+            },
+          },
         },
-        pricing: {
-          cost_per_sensor: 947.92,
-          cost_per_dock: 262.5,
-          licence_per_sensor: 315,
-          target_gp: 0.35
-        }
-      },
-      hospital: {
-        sensors: 10,
-        assumptions: {
-          falls_per_sensor: 1,
-          fall_reduction: 0.7,
-          cost_per_fall: 4000,
-          hosp_per_sensor: 0.4,
-          hosp_reduction: 0.6,
-          cost_per_hosp: 3000,
-          mins_saved_per_shift: 20,
-          shifts_per_day: 3,
-          hourly_wage: 14,
-          staff_count: 50,
-          turnover_reduction: 0.1,
-          turnover_cost: 4000
-        },
-        pricing: {
-          cost_per_sensor: 947.92,
-          cost_per_dock: 262.5,
-          licence_per_sensor: 315,
-          target_gp: 0.35
-        }
-      }
-    };
-
-    const state = loadState();
-    const sensorSlider = document.getElementById('sensor-slider');
-    const sensorInput = document.getElementById('sensor-input');
-    const dockingCountEl = document.getElementById('docking-count');
-
-    function normaliseState(rawState) {
-      const sector = rawState.sector && sectorDefaults[rawState.sector] ? rawState.sector : 'care-home';
-      const defaults = sectorDefaults[sector];
-      return {
-        sector,
-        sensors: rawState.sensors ?? defaults.sensors,
-        assumptions: { ...defaults.assumptions, ...(rawState.assumptions || {}) },
-        pricing: { ...defaults.pricing, ...(rawState.pricing || {}) }
       };
-    }
+      window.tailwind = tailwind;
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/framer-motion@10.16.4/dist/framer-motion.umd.min.js"></script>
+  </head>
+  <body class="antialiased bg-nhm-light text-slate-900 transition-colors duration-300 dark:bg-[#0b1729] dark:text-slate-100">
+    <div id="root"></div>
 
-    function loadState() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          return normaliseState(JSON.parse(saved));
-        } catch (error) {
-          console.warn('Failed to parse saved state', error);
-        }
-      }
-      const sector = 'care-home';
-      const defaults = sectorDefaults[sector];
-      return normaliseState({
-        sector,
-        sensors: defaults.sensors,
-        assumptions: { ...defaults.assumptions },
-        pricing: { ...defaults.pricing }
+    <script type="text/babel">
+      const { useState, useEffect, useMemo } = React;
+      const { motion, AnimatePresence } = window.framerMotion;
+
+      const navItems = ["Home", "Solutions", "Success", "Pricing", "Account"];
+
+      const formatter = new Intl.NumberFormat("en-GB", {
+        style: "currency",
+        currency: "GBP",
+        maximumFractionDigits: 0,
       });
-    }
 
-    function persistState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
+      const formatNumber = (value) => {
+        if (value === null || value === undefined || Number.isNaN(value)) return "–";
+        if (!Number.isFinite(value)) return "–";
+        return formatter.format(value);
+      };
 
-    function formatCurrency(value) {
-      return new Intl.NumberFormat('en-GB', {
-        style: 'currency',
-        currency: 'GBP',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-      }).format(Math.round(value));
-    }
+      function InfoStat({ label, value, highlight }) {
+        return (
+          <div className="flex flex-col gap-1 rounded-card bg-white/80 p-4 text-left shadow-md shadow-black/5 ring-1 ring-white/60 backdrop-blur dark:bg-[#152133]/80 dark:text-slate-100 dark:shadow-black/30">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">{label}</p>
+            <p className={`text-2xl font-semibold ${highlight ? "text-nhm-accent" : "text-nhm-navy dark:text-white"}`}>
+              {value}
+            </p>
+          </div>
+        );
+      }
 
-    function setupSectorControls() {
-      document.querySelectorAll('input[name="sector"]').forEach((radio) => {
-        radio.checked = radio.value === state.sector;
-        radio.addEventListener('change', () => {
-          if (!radio.checked) return;
-          state.sector = radio.value;
-          const defaults = sectorDefaults[state.sector];
-          state.sensors = defaults.sensors;
-          state.assumptions = { ...defaults.assumptions };
-          state.pricing = { ...defaults.pricing };
-          sensorSlider.value = state.sensors;
-          sensorInput.value = state.sensors;
-          persistState();
-          calculateAndRender();
+      function App() {
+        const [inputs, setInputs] = useState({
+          investment: "",
+          savings: "",
+          years: "3",
         });
-      });
-    }
+        const [results, setResults] = useState(null);
+        const [darkMode, setDarkMode] = useState(false);
 
-    function setupSensorControls() {
-      const updateSensors = (value) => {
-        const sensors = Math.min(200, Math.max(1, Number(value) || 1));
-        state.sensors = sensors;
-        sensorSlider.value = sensors;
-        sensorSlider.setAttribute('aria-valuenow', sensors);
-        sensorInput.value = sensors;
-        persistState();
-        calculateAndRender();
-      };
-      sensorSlider.addEventListener('input', (event) => updateSensors(event.target.value));
-      sensorInput.addEventListener('input', (event) => updateSensors(event.target.value));
-    }
+        useEffect(() => {
+          const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+          setDarkMode(prefersDark);
+        }, []);
 
-    function calculateDockingStations(sensors) {
-      return Math.round(sensors * 2.5);
-    }
+        useEffect(() => {
+          const root = document.documentElement;
+          if (darkMode) {
+            root.classList.add("dark");
+          } else {
+            root.classList.remove("dark");
+          }
+        }, [darkMode]);
 
-    function calculateCosts({ sensors, dockingStations, pricing }) {
-      const costYear1ToNhm = sensors * (pricing.cost_per_sensor + pricing.licence_per_sensor) + dockingStations * pricing.cost_per_dock;
-      const sellPriceYear1 = costYear1ToNhm / (1 - pricing.target_gp);
-      const gpUplift = sellPriceYear1 - costYear1ToNhm;
-      const costYear2ToNhm = sensors * pricing.licence_per_sensor;
-      const sellPriceYear2 = costYear2ToNhm / (1 - pricing.target_gp);
-      return { costYear1ToNhm, sellPriceYear1, gpUplift, costYear2ToNhm, sellPriceYear2 };
-    }
+        const handleInputChange = (event) => {
+          const { name, value } = event.target;
+          setInputs((prev) => ({ ...prev, [name]: value }));
+        };
 
-    function calculateSavings({ sensors, assumptions, sector }) {
-      const baselineFalls = sensors * assumptions.falls_per_sensor;
-      const fallsAvoided = baselineFalls * assumptions.fall_reduction;
-      const savingsFalls = fallsAvoided * assumptions.cost_per_fall;
+        const handleCalculate = (event) => {
+          event.preventDefault();
+          const investment = parseFloat(inputs.investment);
+          const annualSavings = parseFloat(inputs.savings);
+          const years = parseFloat(inputs.years);
 
-      const baselineHosps = sensors * assumptions.hosp_per_sensor;
-      const hospsAvoided = baselineHosps * assumptions.hosp_reduction;
-      const savingsHosps = hospsAvoided * assumptions.cost_per_hosp;
+          if (!investment || investment <= 0 || !annualSavings || annualSavings <= 0 || !years || years <= 0) {
+            setResults({ error: "Please provide positive values for all fields." });
+            return;
+          }
 
-      const hoursSavedPerDay = (sensors * assumptions.mins_saved_per_shift * assumptions.shifts_per_day) / 60;
-      const hoursSavedPerYear = hoursSavedPerDay * 365;
-      const savingsStaff = hoursSavedPerYear * assumptions.hourly_wage;
+          const totalSavings = annualSavings * years;
+          const profit = totalSavings - investment;
+          const roi = investment > 0 ? (profit / investment) * 100 : 0;
+          const payback = annualSavings > 0 ? investment / annualSavings : null;
 
-      const defaults = sectorDefaults[sector] || {};
-      const defaultSensors = defaults.sensors || 1;
-      const defaultStaffCount = (defaults.assumptions && defaults.assumptions.staff_count) || 0;
-      const storedStaffCount = assumptions.staff_count ?? defaultStaffCount;
-      const staffMultiplier = defaultStaffCount ? storedStaffCount / defaultStaffCount : 1;
-      const staffPerSensorBaseline = defaultSensors ? defaultStaffCount / defaultSensors : 0;
-      const effectiveStaffCount = staffPerSensorBaseline * staffMultiplier * sensors;
-      const savingsTurnover = effectiveStaffCount * assumptions.turnover_cost * assumptions.turnover_reduction;
+          setResults({
+            error: null,
+            roi,
+            payback,
+            profit,
+            totalSavings,
+          });
+        };
 
-      const annualSavings = savingsFalls + savingsHosps + savingsStaff + savingsTurnover;
+        const resetForm = () => {
+          setInputs({ investment: "", savings: "", years: "3" });
+          setResults(null);
+        };
 
-      return {
-        savingsFalls,
-        savingsHosps,
-        savingsStaff,
-        savingsTurnover,
-        annualSavings
-      };
-    }
+        const summaryCopy = useMemo(() => {
+          if (!results || results.error) return "Discover your return on investment in moments with NHM's ROI calculator.";
+          const roiValue = results.roi.toFixed(1);
+          const paybackValue = results.payback;
+          if (!Number.isFinite(paybackValue)) {
+            return `Your projected ROI is ${roiValue}% over ${inputs.years} years.`;
+          }
+          return `Projected ROI of ${roiValue}% with a payback period of ${paybackValue.toFixed(1)} years.`;
+        }, [results, inputs.years]);
 
-    /*
-      // Unit-like tests (manual run in console)
-      console.assert(calculateDockingStations(10) === 25, 'Docking stations rounding failed');
-      const sampleCosts = calculateCosts({
-        sensors: 10,
-        dockingStations: 25,
-        pricing: { cost_per_sensor: 947.92, licence_per_sensor: 315, cost_per_dock: 262.5, target_gp: 0.35 }
-      });
-      console.assert(Math.round(sampleCosts.costYear1ToNhm) === 16148, 'Cost to NHM mismatch');
-      console.assert(Math.round(sampleCosts.sellPriceYear1) === 24844, 'Sell price mismatch');
-      const sampleSavings = calculateSavings({
-        sensors: 10,
-        sector: 'care-home',
-        assumptions: {
-          falls_per_sensor: 1,
-          fall_reduction: 0.7,
-          cost_per_fall: 4000,
-          hosp_per_sensor: 0.4,
-          hosp_reduction: 0.6,
-          cost_per_hosp: 3000,
-          mins_saved_per_shift: 20,
-          shifts_per_day: 3,
-          hourly_wage: 14,
-          staff_count: 50,
-          turnover_reduction: 0.1,
-          turnover_cost: 4000
-        }
-      });
-      console.assert(Math.round(sampleSavings.annualSavings) === 516480, 'Annual savings mismatch');
-    */
+        return (
+          <div className="flex min-h-screen flex-col bg-transparent text-base text-slate-900 transition-colors duration-500 dark:text-slate-100 lg:flex-row">
+            <aside className="flex w-full flex-col gap-10 bg-nhm-navy px-6 py-10 text-white shadow-dashboard lg:w-72">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-2xl font-bold shadow-inner">
+                  NHM
+                </div>
+                <div>
+                  <p className="text-sm uppercase tracking-[0.35em] text-white/60">Navigator</p>
+                  <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+                </div>
+              </div>
+              <nav className="flex flex-wrap gap-2 text-sm font-medium lg:flex-col">
+                {navItems.map((item) => (
+                  <a
+                    key={item}
+                    href="#"
+                    className="rounded-button px-4 py-2 transition-colors duration-300 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  >
+                    {item}
+                  </a>
+                ))}
+              </nav>
+              <p className="mt-auto hidden text-sm text-white/60 lg:block">
+                Designed for NHM teams to evaluate ROI with clarity and confidence.
+              </p>
+            </aside>
 
-    function calculateAndRender() {
-      const dockingStations = calculateDockingStations(state.sensors);
-      dockingCountEl.textContent = dockingStations.toLocaleString('en-GB');
+            <main className="flex flex-1 flex-col gap-8 bg-nhm-softer px-6 py-8 transition-colors duration-500 dark:bg-[#111c2c] sm:px-10">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-nhm-navy/70 dark:text-white/60">NHM Analytics</p>
+                  <h2 className="mt-2 text-3xl font-semibold text-nhm-navy dark:text-white">ROI Calculator</h2>
+                  <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-300">{summaryCopy}</p>
+                </div>
+                <div className="flex items-center gap-3 self-start rounded-button bg-white/80 px-4 py-2 shadow-inner shadow-black/10 ring-1 ring-white/70 transition dark:bg-[#152133]/80 dark:shadow-black/40 dark:ring-white/10">
+                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-200">Dark Mode</span>
+                  <button
+                    type="button"
+                    onClick={() => setDarkMode((prev) => !prev)}
+                    className={`relative h-8 w-16 rounded-full border-2 border-transparent bg-slate-300 transition dark:bg-slate-600 ${
+                      darkMode ? "bg-nhm-accent" : ""
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-white shadow-md transition-all duration-300 ${
+                        darkMode ? "right-1" : "left-1"
+                      }`}
+                    ></span>
+                  </button>
+                </div>
+              </div>
 
-      const costResult = calculateCosts({
-        sensors: state.sensors,
-        dockingStations,
-        pricing: state.pricing
-      });
+              <form
+                onSubmit={handleCalculate}
+                className="grid w-full gap-6 rounded-card bg-white/90 p-6 shadow-dashboard ring-1 ring-white/60 backdrop-blur-lg transition dark:bg-[#152133]/80 dark:ring-white/10"
+              >
+                <div className="grid gap-6 md:grid-cols-3">
+                  <label className="flex flex-col gap-3 text-sm font-medium text-slate-700 dark:text-slate-200">
+                    Investment Cost (£)
+                    <input
+                      type="number"
+                      name="investment"
+                      min="0"
+                      step="0.01"
+                      inputMode="decimal"
+                      placeholder="e.g. 25000"
+                      value={inputs.investment}
+                      onChange={handleInputChange}
+                      className="rounded-button border border-slate-200/70 bg-white px-4 py-3 text-base font-semibold text-nhm-navy shadow-sm shadow-black/5 outline-none transition focus:border-nhm-accent focus:ring-2 focus:ring-nhm-accent/40 dark:border-white/10 dark:bg-[#1c2940] dark:text-white"
+                    />
+                  </label>
 
-      const savingsResult = calculateSavings({
-        sensors: state.sensors,
-        assumptions: state.assumptions,
-        sector: state.sector
-      });
+                  <label className="flex flex-col gap-3 text-sm font-medium text-slate-700 dark:text-slate-200">
+                    Annual Savings (£)
+                    <input
+                      type="number"
+                      name="savings"
+                      min="0"
+                      step="0.01"
+                      inputMode="decimal"
+                      placeholder="e.g. 18000"
+                      value={inputs.savings}
+                      onChange={handleInputChange}
+                      className="rounded-button border border-slate-200/70 bg-white px-4 py-3 text-base font-semibold text-nhm-navy shadow-sm shadow-black/5 outline-none transition focus:border-nhm-accent focus:ring-2 focus:ring-nhm-accent/40 dark:border-white/10 dark:bg-[#1c2940] dark:text-white"
+                    />
+                  </label>
 
-      const roiRatio = savingsResult.annualSavings && costResult.sellPriceYear1 ? savingsResult.annualSavings / costResult.sellPriceYear1 : 0;
-      const paybackMonths = savingsResult.annualSavings ? (costResult.sellPriceYear1 / savingsResult.annualSavings) * 12 : 0;
-      const pricePerSensor = ((state.pricing.cost_per_sensor + state.pricing.licence_per_sensor) + (2.5 * state.pricing.cost_per_dock)) / (1 - state.pricing.target_gp);
-      const savingsPerSensor = savingsResult.annualSavings / state.sensors || 0;
+                  <label className="flex flex-col gap-3 text-sm font-medium text-slate-700 dark:text-slate-200">
+                    Time Period (Years)
+                    <input
+                      type="number"
+                      name="years"
+                      min="1"
+                      step="0.5"
+                      inputMode="decimal"
+                      placeholder="e.g. 3"
+                      value={inputs.years}
+                      onChange={handleInputChange}
+                      className="rounded-button border border-slate-200/70 bg-white px-4 py-3 text-base font-semibold text-nhm-navy shadow-sm shadow-black/5 outline-none transition focus:border-nhm-accent focus:ring-2 focus:ring-nhm-accent/40 dark:border-white/10 dark:bg-[#1c2940] dark:text-white"
+                    />
+                  </label>
+                </div>
 
-      document.getElementById('customer-price').textContent = formatCurrency(costResult.sellPriceYear1);
-      document.getElementById('customer-price-year2').textContent = formatCurrency(costResult.sellPriceYear2);
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex flex-wrap gap-3 text-xs font-medium uppercase tracking-[0.25em] text-slate-500 dark:text-slate-300">
+                    <span>Real-time Insights</span>
+                    <span className="hidden md:inline">•</span>
+                    <span>Enterprise Ready</span>
+                    <span className="hidden md:inline">•</span>
+                    <span>NHM Certified</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={resetForm}
+                      className="rounded-button border border-transparent bg-slate-200/80 px-5 py-3 text-sm font-semibold uppercase tracking-widest text-nhm-navy shadow-sm shadow-black/10 transition hover:bg-slate-300/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nhm-accent dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
+                    >
+                      Reset
+                    </button>
+                    <button
+                      type="submit"
+                      className="rounded-button bg-nhm-accent px-6 py-3 text-sm font-semibold uppercase tracking-widest text-nhm-navy shadow-lg shadow-nhm-accent/40 transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nhm-accent"
+                    >
+                      Calculate ROI
+                    </button>
+                  </div>
+                </div>
 
-      document.getElementById('savings-falls').textContent = formatCurrency(savingsResult.savingsFalls);
-      document.getElementById('savings-hosps').textContent = formatCurrency(savingsResult.savingsHosps);
-      document.getElementById('savings-staff').textContent = formatCurrency(savingsResult.savingsStaff);
-      document.getElementById('savings-turnover').textContent = formatCurrency(savingsResult.savingsTurnover);
-      document.getElementById('total-savings').textContent = formatCurrency(savingsResult.annualSavings);
+                <AnimatePresence mode="wait">
+                  {results && (
+                    <motion.div
+                      key={results.error ? "error" : "results"}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.35, ease: "easeOut" }}
+                      className="grid gap-4 rounded-card bg-gradient-to-br from-white via-white/95 to-nhm-softer/60 p-6 shadow-inner shadow-black/5 ring-1 ring-white/60 dark:from-[#19253b] dark:via-[#1b2740] dark:to-[#152133] dark:ring-white/5"
+                    >
+                      {results.error ? (
+                        <p className="text-sm font-semibold text-rose-500">{results.error}</p>
+                      ) : (
+                        <div className="grid gap-4 lg:grid-cols-4">
+                          <InfoStat label="ROI" value={`${results.roi.toFixed(1)}%`} highlight />
+                          <InfoStat
+                            label="Payback Period"
+                            value={Number.isFinite(results.payback) ? `${results.payback.toFixed(1)} years` : "–"}
+                          />
+                          <InfoStat label="Total Profit" value={formatNumber(results.profit)} />
+                          <InfoStat label="Total Savings" value={formatNumber(results.totalSavings)} />
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </form>
 
-      document.getElementById('roi-ratio').textContent = `${roiRatio.toFixed(2)}x`;
-      document.getElementById('payback').textContent = `${paybackMonths.toFixed(1)} months`;
-      document.getElementById('price-per-sensor').textContent = formatCurrency(pricePerSensor);
-      document.getElementById('savings-per-sensor').textContent = formatCurrency(savingsPerSensor);
-    }
+              <section className="grid gap-4 rounded-card bg-white/80 p-6 text-sm text-slate-600 shadow-dashboard ring-1 ring-white/70 backdrop-blur-sm dark:bg-[#152133]/80 dark:text-slate-300 dark:ring-white/5 md:grid-cols-2">
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-nhm-navy dark:text-white">Why calculate ROI?</h3>
+                  <p>
+                    Align investment strategies with measurable outcomes. NHM’s calculator surfaces payback clarity and helps teams
+                    prioritise initiatives that deliver both operational efficiency and financial impact.
+                  </p>
+                  <p>
+                    Share these insights across stakeholders to accelerate approvals and capture business cases with confidence.
+                  </p>
+                </div>
+                <div className="space-y-3 rounded-card bg-gradient-to-br from-nhm-navy via-[#132035] to-[#1b263b] p-6 text-white shadow-inner shadow-black/40">
+                  <h3 className="text-lg font-semibold">Pro Tips</h3>
+                  <ul className="space-y-2 text-sm text-white/80">
+                    <li className="flex items-start gap-2">
+                      <span className="mt-1 inline-flex h-2 w-2 rounded-full bg-nhm-accent"></span>
+                      Model both conservative and ambitious savings assumptions to stress-test returns.
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="mt-1 inline-flex h-2 w-2 rounded-full bg-nhm-accent"></span>
+                      Revisit payback calculations quarterly to ensure programmes remain on track.
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="mt-1 inline-flex h-2 w-2 rounded-full bg-nhm-accent"></span>
+                      Integrate ROI outputs into NHM dashboards for richer executive reporting.
+                    </li>
+                  </ul>
+                </div>
+              </section>
+            </main>
+          </div>
+        );
+      }
 
-    function initialise() {
-      sensorSlider.value = state.sensors;
-      sensorSlider.setAttribute('aria-valuenow', state.sensors);
-      sensorInput.value = state.sensors;
-      setupSectorControls();
-      setupSensorControls();
-      calculateAndRender();
-    }
-
-    initialise();
-  </script>
-</body>
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    </script>
+  </body>
 </html>
