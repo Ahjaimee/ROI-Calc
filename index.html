@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cogvis AI – ROI Calculator</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f6f8;
+      --card-bg: #ffffff;
+      --accent: #124191;
+      --accent-light: #e6eefc;
+      --text: #1f2933;
+      --muted: #52606d;
+      --border: #d9e2ec;
+      --green: #1f9d55;
+      --red: #c81e1e;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      padding: 2rem 1.5rem 1rem;
+      text-align: center;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 2.5vw, 2.6rem);
+      color: var(--accent);
+    }
+
+    header p {
+      margin: 0.25rem 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    main {
+      padding: 2rem 1.5rem 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .layout {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .controls {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    fieldset {
+      border: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    fieldset legend {
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .sector-options {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.9rem;
+      color: var(--muted);
+      gap: 0.4rem;
+    }
+
+    input[type="number"],
+    input[type="text"],
+    .slider-wrapper input[type="range"] {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 1rem;
+      color: var(--text);
+      background: #fff;
+      transition: border 0.2s ease;
+    }
+
+    input:focus,
+    input:hover,
+    .slider-wrapper input[type="range"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(18, 65, 145, 0.2);
+    }
+
+    .slider-row {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .slider-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .slider-wrapper input[type="number"] {
+      width: 90px;
+      text-align: right;
+    }
+
+    .assumption-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .assumption-item {
+      position: relative;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--accent-light);
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .assumption-item label {
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .input-with-suffix {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .input-with-suffix input {
+      flex: 1;
+    }
+
+    .suffix {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .delta {
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .delta.positive {
+      color: var(--green);
+    }
+
+    .delta.negative {
+      color: var(--red);
+    }
+
+    .info-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.75rem;
+      cursor: help;
+      margin-left: 0.35rem;
+      position: relative;
+    }
+
+    .info-icon::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(31, 41, 51, 0.95);
+      color: #fff;
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      width: 220px;
+      max-width: 70vw;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      text-align: left;
+      line-height: 1.3;
+    }
+
+    .info-icon:hover::after,
+    .info-icon:focus::after {
+      opacity: 1;
+    }
+
+    .results {
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    .result-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      background: #fff;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .result-card h3 {
+      margin: 0;
+      color: var(--accent);
+      font-size: 1rem;
+    }
+
+    .result-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+      font-size: 0.95rem;
+    }
+
+    .result-line strong {
+      font-size: 1.05rem;
+    }
+
+    .highlight {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .note {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        text-align: left;
+      }
+
+      .slider-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .slider-wrapper input[type="number"] {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Cogvis AI – ROI Calculator</h1>
+    <p>Estimate annual savings, ROI, and payback period.</p>
+  </header>
+
+  <main>
+    <div class="layout">
+      <section class="card controls" aria-labelledby="controls-heading">
+        <h2 id="controls-heading">Inputs</h2>
+
+        <fieldset>
+          <legend>Sector</legend>
+          <div class="sector-options" role="radiogroup" aria-label="Select sector">
+            <label>
+              <span>
+                <input type="radio" name="sector" value="care-home" checked aria-label="Care Home" />
+                Care Home
+              </span>
+            </label>
+            <label>
+              <span>
+                <input type="radio" name="sector" value="hospital" aria-label="Hospital" />
+                Hospital
+              </span>
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="slider-row" aria-label="Sensor quantity">
+          <label for="sensor-slider">Sensors</label>
+          <div class="slider-wrapper">
+            <input type="range" id="sensor-slider" min="1" max="200" step="1" value="10" aria-valuemin="1" aria-valuemax="200" aria-valuenow="10" aria-label="Number of sensors" />
+            <input type="number" id="sensor-input" min="1" max="200" step="1" value="10" aria-label="Number of sensors input" />
+          </div>
+          <div id="docking-info" aria-live="polite">Docking stations (auto): <strong id="docking-count">25</strong></div>
+        </div>
+
+        <section aria-labelledby="assumptions-heading">
+          <h3 id="assumptions-heading">Assumptions <span class="info-icon" tabindex="0" data-tooltip="Adjust site assumptions to reflect your environment. Values persist across visits.">i</span></h3>
+          <div class="assumption-grid" id="assumption-grid">
+            <!-- Assumption inputs injected by JS -->
+          </div>
+        </section>
+
+        <section aria-labelledby="pricing-heading">
+          <h3 id="pricing-heading">Pricing Inputs <span class="info-icon" tabindex="0" data-tooltip="Override pricing if bespoke quotes apply. Gross profit uplift calculated automatically.">i</span></h3>
+          <div class="assumption-grid" id="pricing-grid">
+            <!-- Pricing inputs injected by JS -->
+          </div>
+        </section>
+      </section>
+
+      <section class="card results" aria-labelledby="results-heading">
+        <h2 id="results-heading">Results Summary</h2>
+
+        <div class="result-card" aria-live="polite">
+          <h3>Hardware &amp; Licence (Year 1)</h3>
+          <div class="result-line"><span>NHM cost base</span><strong id="nhm-cost">£0</strong></div>
+          <div class="result-line"><span>GP uplift (35%)</span><strong id="gp-uplift">£0</strong></div>
+          <div class="result-line"><span>Customer price (Year 1)</span><strong class="highlight" id="customer-price">£0</strong></div>
+        </div>
+
+        <div class="result-card">
+          <h3>Annual Savings Breakdown</h3>
+          <div class="result-line"><span>Falls prevented</span><strong id="savings-falls">£0</strong></div>
+          <div class="result-line"><span>Hospitalisations avoided</span><strong id="savings-hosps">£0</strong></div>
+          <div class="result-line"><span>Staff efficiency</span><strong id="savings-staff">£0</strong></div>
+          <div class="result-line"><span>Turnover reduction</span><strong id="savings-turnover">£0</strong></div>
+          <div class="result-line"><span>Total annual savings</span><strong class="highlight" id="total-savings">£0</strong></div>
+        </div>
+
+        <div class="result-card">
+          <h3>ROI &amp; Payback</h3>
+          <div class="result-line"><span>ROI ratio</span><strong id="roi-ratio">0.0x</strong></div>
+          <div class="result-line"><span>Payback period</span><strong id="payback">0 months</strong></div>
+        </div>
+
+        <div class="result-card">
+          <h3>Per-Sensor Snapshot</h3>
+          <div class="result-line"><span>Customer price per sensor</span><strong id="price-per-sensor">£0</strong></div>
+          <div class="result-line"><span>Annual savings per sensor</span><strong id="savings-per-sensor">£0</strong></div>
+        </div>
+
+        <p class="note">Pricing includes 35% GP and Year-1 licence.</p>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const STORAGE_KEY = 'cogvis-roi-calculator-state';
+
+    const sectorDefaults = {
+      'care-home': {
+        sensors: 10,
+        assumptions: {
+          falls_per_sensor: 1,
+          fall_reduction: 0.7,
+          cost_per_fall: 4000,
+          hosp_per_sensor: 0.4,
+          hosp_reduction: 0.6,
+          cost_per_hosp: 3000,
+          mins_saved_per_shift: 20,
+          shifts_per_day: 3,
+          hourly_wage: 14,
+          staff_count: 50,
+          turnover_reduction: 0.1,
+          turnover_cost: 4000
+        },
+        pricing: {
+          cost_per_sensor: 947.92,
+          cost_per_dock: 262.5,
+          licence_per_sensor: 315,
+          target_gp: 0.35
+        }
+      },
+      hospital: {
+        sensors: 10,
+        assumptions: {
+          falls_per_sensor: 1,
+          fall_reduction: 0.7,
+          cost_per_fall: 4000,
+          hosp_per_sensor: 0.4,
+          hosp_reduction: 0.6,
+          cost_per_hosp: 3000,
+          mins_saved_per_shift: 20,
+          shifts_per_day: 3,
+          hourly_wage: 14,
+          staff_count: 50,
+          turnover_reduction: 0.1,
+          turnover_cost: 4000
+        },
+        pricing: {
+          cost_per_sensor: 947.92,
+          cost_per_dock: 262.5,
+          licence_per_sensor: 315,
+          target_gp: 0.35
+        }
+      }
+    };
+
+    const assumptionMetadata = [
+      { key: 'falls_per_sensor', label: 'Baseline falls per sensor / year', hint: 'Average number of falls linked to each sensor annually.', type: 'number', step: '0.1' },
+      { key: 'fall_reduction', label: 'Fall reduction rate', hint: 'Percentage of falls avoided with Cogvis AI.', type: 'number', step: '0.05' },
+      { key: 'cost_per_fall', label: 'Cost per fall (£)', hint: 'Estimated total cost per resident fall.', type: 'number', step: '100' },
+      { key: 'hosp_per_sensor', label: 'Baseline hospitalisations per sensor / year', hint: 'Average hospital admissions per sensor each year.', type: 'number', step: '0.1' },
+      { key: 'hosp_reduction', label: 'Hospitalisation reduction rate', hint: 'Percentage of admissions avoided with Cogvis AI.', type: 'number', step: '0.05' },
+      { key: 'cost_per_hosp', label: 'Cost per hospitalisation (£)', hint: 'Average cost of hospital admission.', type: 'number', step: '100' },
+      { key: 'mins_saved_per_shift', label: 'Staff minutes saved per resident per shift', hint: 'Efficiency gains per shift per sensor.', type: 'number', step: '1' },
+      { key: 'shifts_per_day', label: 'Shifts per day', hint: 'Number of staffed shifts per day.', type: 'number', step: '1' },
+      { key: 'hourly_wage', label: 'Hourly wage (£/hr)', hint: 'Average hourly labour cost.', type: 'number', step: '1' },
+      { key: 'staff_count', label: 'Staff count (site)', hint: 'Total staff at the site the sensors support.', type: 'number', step: '1' },
+      { key: 'turnover_reduction', label: 'Turnover reduction rate', hint: 'Expected reduction in staff turnover.', type: 'number', step: '0.01' },
+      { key: 'turnover_cost', label: 'Turnover cost per staff (£)', hint: 'Cost to replace one staff member.', type: 'number', step: '100' }
+    ];
+
+    const pricingMetadata = [
+      { key: 'cost_per_sensor', label: 'Cost to NHM per sensor (£)', hint: 'Hardware cost per sensor for NHM.', step: '0.01' },
+      { key: 'cost_per_dock', label: 'Cost to NHM per docking station (£)', hint: 'Hardware cost per docking station for NHM.', step: '0.01' },
+      { key: 'licence_per_sensor', label: 'Year-1 licence per sensor (£)', hint: 'Software licence cost in year one per sensor.', step: '0.01' },
+      { key: 'target_gp', label: 'Target GP (%)', hint: 'Target gross profit margin as a percentage.', step: '0.1', multiplier: 100, suffix: '%' }
+    ];
+
+    const state = loadState();
+    const sensorSlider = document.getElementById('sensor-slider');
+    const sensorInput = document.getElementById('sensor-input');
+    const dockingCountEl = document.getElementById('docking-count');
+
+    function normaliseState(rawState) {
+      const sector = rawState.sector && sectorDefaults[rawState.sector] ? rawState.sector : 'care-home';
+      const defaults = sectorDefaults[sector];
+      return {
+        sector,
+        sensors: rawState.sensors ?? defaults.sensors,
+        assumptions: { ...defaults.assumptions, ...(rawState.assumptions || {}) },
+        pricing: { ...defaults.pricing, ...(rawState.pricing || {}) }
+      };
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          return normaliseState(JSON.parse(saved));
+        } catch (error) {
+          console.warn('Failed to parse saved state', error);
+        }
+      }
+      const sector = 'care-home';
+      const defaults = sectorDefaults[sector];
+      return normaliseState({
+        sector,
+        sensors: defaults.sensors,
+        assumptions: { ...defaults.assumptions },
+        pricing: { ...defaults.pricing }
+      });
+    }
+
+    function persistState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'GBP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(Math.round(value));
+    }
+
+    function renderAssumptions() {
+      const grid = document.getElementById('assumption-grid');
+      grid.innerHTML = '';
+      assumptionMetadata.forEach(({ key, label, hint, type, step }) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'assumption-item';
+        const inputId = `assumption-${key}`;
+        const defaultValue = sectorDefaults[state.sector].assumptions[key];
+        const value = state.assumptions[key];
+        wrapper.innerHTML = `
+          <label for="${inputId}">${label}<span class="info-icon" tabindex="0" data-tooltip="${hint}">i</span></label>
+          <input type="number" id="${inputId}" inputmode="decimal" step="${step}" name="${key}" value="${value}" aria-describedby="${inputId}-delta" />
+          <span class="delta" id="${inputId}-delta"></span>
+        `;
+        grid.appendChild(wrapper);
+      });
+    }
+
+    function renderPricing() {
+      const grid = document.getElementById('pricing-grid');
+      grid.innerHTML = '';
+      pricingMetadata.forEach((meta) => {
+        const { key, label, hint, step, multiplier = 1, suffix = '' } = meta;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'assumption-item';
+        const inputId = `pricing-${key}`;
+        const value = (state.pricing[key] * multiplier).toFixed(2).replace(/\.0+$/, '');
+        wrapper.innerHTML = `
+          <label for="${inputId}">${label}<span class="info-icon" tabindex="0" data-tooltip="${hint}">i</span></label>
+          <div class="input-with-suffix">
+            <input type="number" id="${inputId}" inputmode="decimal" step="${step}" name="${key}" value="${value}" aria-describedby="${inputId}-delta" />
+            ${suffix ? `<span class="suffix">${suffix}</span>` : ''}
+          </div>
+          <span class="delta" id="${inputId}-delta"></span>
+        `;
+        grid.appendChild(wrapper);
+      });
+    }
+
+    function attachAssumptionListeners() {
+      document.querySelectorAll('#assumption-grid input').forEach((input) => {
+        input.addEventListener('input', () => {
+          const key = input.name;
+          const value = parseFloat(input.value) || 0;
+          state.assumptions[key] = value;
+          updateDelta(input, sectorDefaults[state.sector].assumptions[key]);
+          persistState();
+          calculateAndRender();
+        });
+        updateDelta(input, sectorDefaults[state.sector].assumptions[input.name]);
+      });
+    }
+
+    function attachPricingListeners() {
+      document.querySelectorAll('#pricing-grid input').forEach((input) => {
+        input.addEventListener('input', () => {
+          const key = input.name;
+          let value = parseFloat(input.value);
+          if (key === 'target_gp') {
+            value = value > 1 ? value / 100 : value;
+          }
+          if (Number.isNaN(value)) value = 0;
+          state.pricing[key] = value;
+          const metadata = pricingMetadata.find((meta) => meta.key === key) || {};
+          updateDelta(input, sectorDefaults[state.sector].pricing[key], metadata);
+          persistState();
+          calculateAndRender();
+        });
+        const metadata = pricingMetadata.find((meta) => meta.key === input.name) || {};
+        updateDelta(input, sectorDefaults[state.sector].pricing[input.name], metadata);
+      });
+    }
+
+    function updateDelta(input, defaultValue, metadata = {}) {
+      const deltaEl = document.getElementById(`${input.id}-delta`);
+      const value = parseFloat(input.value) || 0;
+      const multiplier = metadata.multiplier || 1;
+      const adjustedValue = multiplier !== 1 ? value / multiplier : value;
+      const delta = adjustedValue - defaultValue;
+      let formatted = '';
+      deltaEl.classList.remove('positive', 'negative');
+      if (Math.abs(delta) > 1e-6) {
+        if (input.name.includes('reduction') || input.name === 'target_gp') {
+          const displayDelta = delta * (Math.abs(delta) < 1 ? 100 : 1);
+          formatted = `${delta > 0 ? '+' : ''}${displayDelta.toFixed(1)}${Math.abs(delta) < 1 ? '%' : ''}`;
+        } else {
+          formatted = `${delta > 0 ? '+' : ''}${delta.toFixed(2)}`;
+        }
+        deltaEl.textContent = formatted;
+        deltaEl.classList.add(delta >= 0 ? 'positive' : 'negative');
+      } else {
+        deltaEl.textContent = 'Default';
+      }
+    }
+
+    function setupSectorControls() {
+      document.querySelectorAll('input[name="sector"]').forEach((radio) => {
+        radio.checked = radio.value === state.sector;
+        radio.addEventListener('change', () => {
+          if (!radio.checked) return;
+          state.sector = radio.value;
+          const defaults = sectorDefaults[state.sector];
+          state.sensors = defaults.sensors;
+          state.assumptions = { ...defaults.assumptions };
+          state.pricing = { ...defaults.pricing };
+          sensorSlider.value = state.sensors;
+          sensorInput.value = state.sensors;
+          renderAssumptions();
+          renderPricing();
+          attachAssumptionListeners();
+          attachPricingListeners();
+          persistState();
+          calculateAndRender();
+        });
+      });
+    }
+
+    function setupSensorControls() {
+      const updateSensors = (value) => {
+        const sensors = Math.min(200, Math.max(1, Number(value) || 1));
+        state.sensors = sensors;
+        sensorSlider.value = sensors;
+        sensorSlider.setAttribute('aria-valuenow', sensors);
+        sensorInput.value = sensors;
+        persistState();
+        calculateAndRender();
+      };
+      sensorSlider.addEventListener('input', (event) => updateSensors(event.target.value));
+      sensorInput.addEventListener('input', (event) => updateSensors(event.target.value));
+    }
+
+    function calculateDockingStations(sensors) {
+      return Math.round(sensors * 2.5);
+    }
+
+    function calculateCosts({ sensors, dockingStations, pricing }) {
+      const costYear1ToNhm = sensors * (pricing.cost_per_sensor + pricing.licence_per_sensor) + dockingStations * pricing.cost_per_dock;
+      const sellPriceYear1 = costYear1ToNhm / (1 - pricing.target_gp);
+      const gpUplift = sellPriceYear1 - costYear1ToNhm;
+      return { costYear1ToNhm, sellPriceYear1, gpUplift };
+    }
+
+    function calculateSavings({ sensors, assumptions }) {
+      const baselineFalls = sensors * assumptions.falls_per_sensor;
+      const fallsAvoided = baselineFalls * assumptions.fall_reduction;
+      const savingsFalls = fallsAvoided * assumptions.cost_per_fall;
+
+      const baselineHosps = sensors * assumptions.hosp_per_sensor;
+      const hospsAvoided = baselineHosps * assumptions.hosp_reduction;
+      const savingsHosps = hospsAvoided * assumptions.cost_per_hosp;
+
+      const hoursSavedPerDay = (sensors * assumptions.mins_saved_per_shift * assumptions.shifts_per_day) / 60;
+      const hoursSavedPerYear = hoursSavedPerDay * 365;
+      const savingsStaff = hoursSavedPerYear * assumptions.hourly_wage;
+
+      const savingsTurnover = assumptions.staff_count * assumptions.turnover_cost * assumptions.turnover_reduction;
+
+      const annualSavings = savingsFalls + savingsHosps + savingsStaff + savingsTurnover;
+
+      return {
+        savingsFalls,
+        savingsHosps,
+        savingsStaff,
+        savingsTurnover,
+        annualSavings
+      };
+    }
+
+    /*
+      // Unit-like tests (manual run in console)
+      console.assert(calculateDockingStations(10) === 25, 'Docking stations rounding failed');
+      const sampleCosts = calculateCosts({
+        sensors: 10,
+        dockingStations: 25,
+        pricing: { cost_per_sensor: 947.92, licence_per_sensor: 315, cost_per_dock: 262.5, target_gp: 0.35 }
+      });
+      console.assert(Math.round(sampleCosts.costYear1ToNhm) === 16148, 'Cost to NHM mismatch');
+      console.assert(Math.round(sampleCosts.sellPriceYear1) === 24844, 'Sell price mismatch');
+      const sampleSavings = calculateSavings({
+        sensors: 10,
+        assumptions: {
+          falls_per_sensor: 1,
+          fall_reduction: 0.7,
+          cost_per_fall: 4000,
+          hosp_per_sensor: 0.4,
+          hosp_reduction: 0.6,
+          cost_per_hosp: 3000,
+          mins_saved_per_shift: 20,
+          shifts_per_day: 3,
+          hourly_wage: 14,
+          staff_count: 50,
+          turnover_reduction: 0.1,
+          turnover_cost: 4000
+        }
+      });
+      console.assert(Math.round(sampleSavings.annualSavings) === 516480, 'Annual savings mismatch');
+    */
+
+    function calculateAndRender() {
+      const dockingStations = calculateDockingStations(state.sensors);
+      dockingCountEl.textContent = dockingStations.toLocaleString('en-GB');
+
+      const costResult = calculateCosts({
+        sensors: state.sensors,
+        dockingStations,
+        pricing: state.pricing
+      });
+
+      const savingsResult = calculateSavings({
+        sensors: state.sensors,
+        assumptions: state.assumptions
+      });
+
+      const roiRatio = savingsResult.annualSavings && costResult.sellPriceYear1 ? savingsResult.annualSavings / costResult.sellPriceYear1 : 0;
+      const paybackMonths = savingsResult.annualSavings ? (costResult.sellPriceYear1 / savingsResult.annualSavings) * 12 : 0;
+      const pricePerSensor = ((state.pricing.cost_per_sensor + state.pricing.licence_per_sensor) + (2.5 * state.pricing.cost_per_dock)) / (1 - state.pricing.target_gp);
+      const savingsPerSensor = savingsResult.annualSavings / state.sensors || 0;
+
+      document.getElementById('nhm-cost').textContent = formatCurrency(costResult.costYear1ToNhm);
+      document.getElementById('gp-uplift').textContent = formatCurrency(costResult.gpUplift);
+      document.getElementById('customer-price').textContent = formatCurrency(costResult.sellPriceYear1);
+
+      document.getElementById('savings-falls').textContent = formatCurrency(savingsResult.savingsFalls);
+      document.getElementById('savings-hosps').textContent = formatCurrency(savingsResult.savingsHosps);
+      document.getElementById('savings-staff').textContent = formatCurrency(savingsResult.savingsStaff);
+      document.getElementById('savings-turnover').textContent = formatCurrency(savingsResult.savingsTurnover);
+      document.getElementById('total-savings').textContent = formatCurrency(savingsResult.annualSavings);
+
+      document.getElementById('roi-ratio').textContent = `${roiRatio.toFixed(2)}x`;
+      document.getElementById('payback').textContent = `${paybackMonths.toFixed(1)} months`;
+      document.getElementById('price-per-sensor').textContent = formatCurrency(pricePerSensor);
+      document.getElementById('savings-per-sensor').textContent = formatCurrency(savingsPerSensor);
+    }
+
+    function initialise() {
+      sensorSlider.value = state.sensors;
+      sensorSlider.setAttribute('aria-valuenow', state.sensors);
+      sensorInput.value = state.sensors;
+      renderAssumptions();
+      renderPricing();
+      attachAssumptionListeners();
+      attachPricingListeners();
+      setupSectorControls();
+      setupSensorControls();
+      calculateAndRender();
+    }
+
+    initialise();
+  </script>
+</body>
+</html>
