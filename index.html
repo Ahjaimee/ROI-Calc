@@ -270,15 +270,99 @@
       .savings-list li {
         display: flex;
         justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
         font-weight: 600;
         color: var(--color-text);
         border-bottom: 1px solid rgba(13, 27, 42, 0.08);
         padding-bottom: 8px;
       }
 
-      .savings-list span {
+      .savings-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         color: var(--color-muted);
         font-weight: 500;
+        position: relative;
+      }
+
+      .tooltip-trigger {
+        appearance: none;
+        border: none;
+        background: none;
+        color: var(--color-accent);
+        font-size: 0.85rem;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .tooltip-trigger:focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 2px;
+        border-radius: 50%;
+      }
+
+      .tooltip-trigger span {
+        display: inline-block;
+        font-size: 0.95rem;
+      }
+
+      .tooltip-content {
+        position: absolute;
+        left: 0;
+        bottom: calc(100% + 12px);
+        max-width: min(280px, 70vw);
+        background: #ffffff;
+        color: var(--color-text);
+        padding: 12px 14px;
+        border-radius: 12px;
+        box-shadow: 0 12px 30px -16px rgba(13, 27, 42, 0.6);
+        font-size: 0.82rem;
+        line-height: 1.4;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(6px);
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+        z-index: 10;
+      }
+
+      .tooltip-content::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 16px;
+        border-width: 8px;
+        border-style: solid;
+        border-color: #ffffff transparent transparent transparent;
+      }
+
+      .savings-label:hover .tooltip-content,
+      .tooltip-trigger:focus + .tooltip-content,
+      .tooltip-trigger[aria-expanded="true"] + .tooltip-content {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      @media (max-width: 600px) {
+        .tooltip-content {
+          left: 0;
+          right: auto;
+          bottom: auto;
+          top: calc(100% + 10px);
+          transform: translateY(-6px);
+        }
+
+        .tooltip-content::after {
+          top: auto;
+          bottom: 100%;
+          border-color: transparent transparent #ffffff transparent;
+        }
       }
 
       .footnote {
@@ -342,6 +426,12 @@
         margin-top: 8px;
       }
 
+      .results-note {
+        margin-top: -8px;
+        color: var(--color-muted);
+        text-align: center;
+      }
+
       .metric-item {
         background: rgba(13, 27, 42, 0.05);
         border-radius: 14px;
@@ -373,6 +463,18 @@
         clip: rect(0, 0, 0, 0);
         white-space: nowrap;
         border: 0;
+      }
+
+      .total-savings {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .total-savings .value-large {
+        margin: 0;
       }
 
       @media (max-width: 520px) {
@@ -474,23 +576,96 @@
             <h3>Savings Breakdown</h3>
             <ul class="savings-list">
               <li>
-                <span>Falls prevented</span>
+                <span class="savings-label">
+                  Falls prevented
+                  <button
+                    type="button"
+                    class="tooltip-trigger"
+                    aria-label="Explanation for Falls prevented"
+                    aria-expanded="false"
+                    aria-describedby="tooltip-falls"
+                  >
+                    <span aria-hidden="true">ⓘ</span>
+                  </button>
+                  <span class="tooltip-content" id="tooltip-falls" role="tooltip">
+                    Based on average reductions in resident falls seen when using AI fall-detection systems. Each prevented fall avoids emergency response, staff time, and recovery costs.
+                  </span>
+                </span>
                 <strong id="falls-output">£0</strong>
               </li>
               <li>
-                <span>Hospitalisations avoided</span>
+                <span class="savings-label">
+                  Hospitalisations avoided
+                  <button
+                    type="button"
+                    class="tooltip-trigger"
+                    aria-label="Explanation for Hospitalisations avoided"
+                    aria-expanded="false"
+                    aria-describedby="tooltip-hosps"
+                  >
+                    <span aria-hidden="true">ⓘ</span>
+                  </button>
+                  <span class="tooltip-content" id="tooltip-hosps" role="tooltip">
+                    Reflects typical reductions in hospital admissions achieved through earlier detection and intervention.
+                  </span>
+                </span>
                 <strong id="hosps-output">£0</strong>
               </li>
               <li>
-                <span>Staff efficiency</span>
+                <span class="savings-label">
+                  Staff efficiency
+                  <button
+                    type="button"
+                    class="tooltip-trigger"
+                    aria-label="Explanation for Staff efficiency"
+                    aria-expanded="false"
+                    aria-describedby="tooltip-staff"
+                  >
+                    <span aria-hidden="true">ⓘ</span>
+                  </button>
+                  <span class="tooltip-content" id="tooltip-staff" role="tooltip">
+                    Represents time saved each shift by automating observation and alerts, allowing staff to focus more on residents.
+                  </span>
+                </span>
                 <strong id="staff-output">£0</strong>
               </li>
               <li>
-                <span>Staff turnover</span>
+                <span class="savings-label">
+                  Staff turnover
+                  <button
+                    type="button"
+                    class="tooltip-trigger"
+                    aria-label="Explanation for Staff turnover"
+                    aria-expanded="false"
+                    aria-describedby="tooltip-turnover"
+                  >
+                    <span aria-hidden="true">ⓘ</span>
+                  </button>
+                  <span class="tooltip-content" id="tooltip-turnover" role="tooltip">
+                    Better working conditions and reduced stress help retain staff, reducing recruitment and training costs.
+                  </span>
+                </span>
                 <strong id="turnover-output">£0</strong>
               </li>
             </ul>
-            <div class="value-large value-accent" id="total-savings-output">£0</div>
+            <div class="total-savings">
+              <span class="savings-label">
+                Total annual savings
+                <button
+                  type="button"
+                  class="tooltip-trigger"
+                  aria-label="Explanation for Total annual savings"
+                  aria-expanded="false"
+                  aria-describedby="tooltip-total"
+                >
+                  <span aria-hidden="true">ⓘ</span>
+                </button>
+                <span class="tooltip-content" id="tooltip-total" role="tooltip">
+                  Combined estimated benefit across safety, efficiency, and staffing improvements during the first year.
+                </span>
+              </span>
+              <span class="value-large value-accent" id="total-savings-output">£0</span>
+            </div>
           </div>
 
           <div class="result-card stack">
@@ -509,6 +684,10 @@
           </div>
         </div>
       </section>
+
+      <p class="footnote results-note">
+        These estimates are based on typical care-sector benchmarks and operational data. Actual results may vary by site size, layout, and staffing model.
+      </p>
     </div>
 
     <script>
@@ -557,6 +736,9 @@
         const totalSavingsOutput = document.getElementById("total-savings-output");
         const roiOutput = document.getElementById("roi-output");
         const paybackOutput = document.getElementById("payback-output");
+        const tooltipTriggers = Array.from(
+          document.querySelectorAll(".tooltip-trigger")
+        );
 
         const STORAGE_KEY = "cogvis-roi";
 
@@ -568,6 +750,51 @@
 
         const numberFormatter = new Intl.NumberFormat("en-GB", {
           maximumFractionDigits: 1,
+        });
+
+        function closeAllTooltips(except) {
+          tooltipTriggers.forEach((trigger) => {
+            if (!except || trigger !== except) {
+              trigger.setAttribute("aria-expanded", "false");
+            }
+          });
+        }
+
+        tooltipTriggers.forEach((trigger) => {
+          trigger.addEventListener("click", (event) => {
+            const isExpanded = trigger.getAttribute("aria-expanded") === "true";
+            closeAllTooltips(trigger);
+            trigger.setAttribute("aria-expanded", isExpanded ? "false" : "true");
+            if (!isExpanded) {
+              trigger.focus();
+            }
+            event.stopPropagation();
+          });
+
+          trigger.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+              trigger.setAttribute("aria-expanded", "false");
+              trigger.blur();
+            }
+          });
+        });
+
+        document.addEventListener("click", (event) => {
+          if (!event.target.closest(".savings-label")) {
+            closeAllTooltips();
+          }
+        });
+
+        document.addEventListener("focusin", (event) => {
+          if (!event.target.closest(".savings-label")) {
+            closeAllTooltips();
+          }
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            closeAllTooltips();
+          }
         });
 
         function loadPersistedState() {
