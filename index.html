@@ -250,8 +250,9 @@
         <h2 id="results-heading">Results Summary</h2>
 
         <div class="result-card" aria-live="polite">
-          <h3>Investment Overview (Year 1)</h3>
+          <h3>Investment Overview</h3>
           <div class="result-line"><span>Customer price (Year 1)</span><strong class="highlight" id="customer-price">£0</strong></div>
+          <div class="result-line"><span>Estimated customer price (Year 2 licence)*</span><strong id="customer-price-year2">£0</strong></div>
         </div>
 
         <div class="result-card">
@@ -275,7 +276,7 @@
           <div class="result-line"><span>Annual savings per sensor</span><strong id="savings-per-sensor">£0</strong></div>
         </div>
 
-        <p class="note">Pricing includes 35% GP and Year-1 licence.</p>
+        <p class="note">Pricing includes 35% GP and Year-1 licence. *Year-2 price is a good-faith estimate covering licence fees only.</p>
       </section>
     </div>
   </main>
@@ -420,7 +421,9 @@
       const costYear1ToNhm = sensors * (pricing.cost_per_sensor + pricing.licence_per_sensor) + dockingStations * pricing.cost_per_dock;
       const sellPriceYear1 = costYear1ToNhm / (1 - pricing.target_gp);
       const gpUplift = sellPriceYear1 - costYear1ToNhm;
-      return { costYear1ToNhm, sellPriceYear1, gpUplift };
+      const costYear2ToNhm = sensors * pricing.licence_per_sensor;
+      const sellPriceYear2 = costYear2ToNhm / (1 - pricing.target_gp);
+      return { costYear1ToNhm, sellPriceYear1, gpUplift, costYear2ToNhm, sellPriceYear2 };
     }
 
     function calculateSavings({ sensors, assumptions, sector }) {
@@ -509,6 +512,7 @@
       const savingsPerSensor = savingsResult.annualSavings / state.sensors || 0;
 
       document.getElementById('customer-price').textContent = formatCurrency(costResult.sellPriceYear1);
+      document.getElementById('customer-price-year2').textContent = formatCurrency(costResult.sellPriceYear2);
 
       document.getElementById('savings-falls').textContent = formatCurrency(savingsResult.savingsFalls);
       document.getElementById('savings-hosps').textContent = formatCurrency(savingsResult.savingsHosps);
