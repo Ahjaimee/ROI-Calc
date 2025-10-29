@@ -572,10 +572,6 @@
                 <input type="radio" name="sector" id="sector-care" value="care" checked />
                 <label for="sector-care">Care Home</label>
               </div>
-              <div class="radio-option">
-                <input type="radio" name="sector" id="sector-hospital" value="hospital" />
-                <label for="sector-hospital">Hospital</label>
-              </div>
             </div>
           </fieldset>
 
@@ -1040,10 +1036,26 @@
         }
 
         function setSector(value) {
-          Array.from(sectorRadios).forEach((radio) => {
-            radio.checked = radio.value === value;
+          const radios = Array.from(sectorRadios);
+          let matched = false;
+
+          radios.forEach((radio) => {
+            const isMatch = radio.value === value;
+            radio.checked = isMatch;
+            if (isMatch) {
+              matched = true;
+            }
           });
-          persistState({ sector: value });
+
+          if (!matched && radios.length > 0) {
+            radios[0].checked = true;
+            persistState({ sector: radios[0].value });
+            return;
+          }
+
+          if (matched) {
+            persistState({ sector: value });
+          }
         }
 
         function compute(sensorCount) {
