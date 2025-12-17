@@ -589,12 +589,12 @@
             <input
               type="number"
               id="docking"
-              value="25"
+              value="10"
               min="0"
               step="1"
               aria-live="polite"
             />
-            <p class="hint">Automatically calculated at 2.5 per sensor (rounded, capped at 500). Adjust if needed.</p>
+            <p class="hint">Automatically calculated at 1 per sensor (rounded, capped at 500). Adjust if needed.</p>
           </div>
 
           <section
@@ -702,48 +702,6 @@
 
         <div id="results" aria-labelledby="results-heading">
           <h2 id="results-heading" class="visually-hidden">Calculator results</h2>
-          <div class="result-card">
-            <h3>Customer Year-1 Price</h3>
-            <div class="value-large" id="price-output">£0</div>
-            <p class="footnote">Includes Year-1 licence and hardware.</p>
-            <div class="metrics">
-              <div class="metric-item">
-                <label>Per sensor</label>
-                <strong id="per-sensor-output">£0</strong>
-              </div>
-              <div class="metric-item">
-                <label>Docking stations</label>
-                <strong id="dock-count-output">0</strong>
-              </div>
-            </div>
-            <details class="price-breakdown">
-              <summary>
-                View price breakdown<span aria-hidden="true">*</span>
-              </summary>
-              <div class="breakdown-grid">
-                <div class="breakdown-row">
-                  <span>Sensors</span>
-                  <span class="breakdown-qty" id="breakdown-sensors-qty">0 units</span>
-                  <span class="breakdown-amount" id="breakdown-sensors-amount">£0</span>
-                </div>
-                <div class="breakdown-row">
-                  <span>Year-1 licence</span>
-                  <span class="breakdown-qty" id="breakdown-licence-qty">0 licences</span>
-                  <span class="breakdown-amount" id="breakdown-licence-amount">£0</span>
-                </div>
-                <div class="breakdown-row">
-                  <span>Docking stations</span>
-                  <span class="breakdown-qty" id="breakdown-docks-qty">0 units</span>
-                  <span class="breakdown-amount" id="breakdown-docks-amount">£0</span>
-                </div>
-              </div>
-              <p class="footnote disclaimer">
-                <span aria-hidden="true">*</span>
-                Good-faith estimate; final pricing may vary.
-              </p>
-            </details>
-          </div>
-
           <div class="result-card stack">
             <h3>Savings Breakdown</h3>
             <ul class="savings-list">
@@ -889,15 +847,6 @@
         let dockingManual = false;
         const sectorRadios = controlsForm.elements.namedItem("sector");
 
-        const priceOutput = document.getElementById("price-output");
-        const perSensorOutput = document.getElementById("per-sensor-output");
-        const dockCountOutput = document.getElementById("dock-count-output");
-        const breakdownSensorsQty = document.getElementById("breakdown-sensors-qty");
-        const breakdownSensorsAmount = document.getElementById("breakdown-sensors-amount");
-        const breakdownLicenceQty = document.getElementById("breakdown-licence-qty");
-        const breakdownLicenceAmount = document.getElementById("breakdown-licence-amount");
-        const breakdownDocksQty = document.getElementById("breakdown-docks-qty");
-        const breakdownDocksAmount = document.getElementById("breakdown-docks-amount");
         const fallsOutput = document.getElementById("falls-output");
         const hospsOutput = document.getElementById("hosps-output");
         const staffOutput = document.getElementById("staff-output");
@@ -1029,7 +978,7 @@
           sensorRange.value = String(clamped);
           sensorNumber.value = String(clamped);
           if (!dockingManual) {
-            setDockingValue(clamped * 2.5);
+            setDockingValue(clamped);
           }
           persistState({ sensors: clamped });
           updateResults();
@@ -1098,8 +1047,6 @@
           const paybackMonths =
             annualSavings > 0 ? (sellPriceY1 / annualSavings) * 12 : Infinity;
 
-          const perSensor = sensorCount > 0 ? sellPriceY1 / sensorCount : 0;
-
           return {
             docks,
             sellPriceY1,
@@ -1110,12 +1057,6 @@
             annualSavings,
             roiRatio,
             paybackMonths,
-            perSensor,
-            breakdown: {
-              sensors: sensorsSell,
-              licence: licenceSell,
-              docks: docksSell,
-            },
             operational: {
               fallsAvoided,
               hospsAvoided,
@@ -1136,11 +1077,6 @@
           return Math.round(value).toLocaleString("en-GB");
         }
 
-        function formatQuantity(count, singular, plural) {
-          const label = count === 1 ? singular : plural;
-          return `${count.toLocaleString("en-GB")} ${label}`;
-        }
-
         function formatMonths(value) {
           if (!Number.isFinite(value) || value <= 0) {
             return "< 1 month";
@@ -1159,35 +1095,7 @@
           const sensorCount = Number(sensorRange.value);
           const metrics = compute(sensorCount);
 
-          const docks = setDockingValue(metrics.docks);
-          dockCountOutput.textContent = docks.toLocaleString("en-GB");
-
-          priceOutput.textContent = formatCurrency(metrics.sellPriceY1);
-          perSensorOutput.textContent = formatCurrency(metrics.perSensor);
-          breakdownSensorsQty.textContent = formatQuantity(
-            sensorCount,
-            "sensor",
-            "sensors"
-          );
-          breakdownSensorsAmount.textContent = formatCurrency(
-            metrics.breakdown.sensors
-          );
-          breakdownLicenceQty.textContent = formatQuantity(
-            sensorCount,
-            "licence",
-            "licences"
-          );
-          breakdownLicenceAmount.textContent = formatCurrency(
-            metrics.breakdown.licence
-          );
-          breakdownDocksQty.textContent = formatQuantity(
-            metrics.docks,
-            "unit",
-            "units"
-          );
-          breakdownDocksAmount.textContent = formatCurrency(
-            metrics.breakdown.docks
-          );
+          setDockingValue(metrics.docks);
           fallsOutput.textContent = formatCurrency(metrics.savingsFalls);
           hospsOutput.textContent = formatCurrency(metrics.savingsHosps);
           staffOutput.textContent = formatCurrency(metrics.savingsStaff);
@@ -1237,7 +1145,7 @@
         dockingField.addEventListener("blur", () => {
           if (dockingField.value === "") {
             dockingManual = false;
-            setDockingValue(Number(sensorRange.value) * 2.5);
+            setDockingValue(Number(sensorRange.value));
           }
           updateResults();
         });
